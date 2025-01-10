@@ -10,46 +10,46 @@ import (
 	"time"
 
 	"github.com/JueViGrace/clo-backend/internal/db"
+	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv/autoload"
-	_ "github.com/mattn/go-sqlite3"
 )
 
-type Storage interface {
-	Health() map[string]string
-	Close() error
+// type torage interface {
+// 	Health() map[string]string
+// 	Close() error
+//
+// 	SessionStore() SessionStore
+// 	AuthStore() AuthStore
+// 	ConfigStore() ConfigStore
+// 	OrderStore() OrderStore
+// 	ProductStore() ProductStore
+// 	UserStore() UserStore
+// }
 
-	SessionStore() SessionStore
-	AuthStore() AuthStore
-	CompanyStore() CompanyStore
-	ConfigStore() ConfigStore
-	CustomerStore() CustomerStore
-	DocumentStore() DocumentStore
-	OrderStore() OrderStore
-	ProductStore() ProductStore
-	SalesmanStore() SalesmanStore
-	StatisticStore() StatisticStore
-	UserStore() UserStore
-}
-
-type storage struct {
+type Storage struct {
 	db      *sql.DB
 	ctx     context.Context
 	queries *db.Queries
 }
 
 var (
-	dbUrl      = os.Getenv("DB_URL")
+	database   = os.Getenv("DB_NAME")
+	password   = os.Getenv("DB_PASSWORD")
+	username   = os.Getenv("DB_USERNAME")
+	port       = os.Getenv("DB_PORT")
+	host       = os.Getenv("DB_HOST")
 	ctx        = context.Background()
-	dbInstance *storage
+	dbInstance *Storage
 	queries    *db.Queries
 )
 
-func NewStorage() Storage {
+func NewStorage() *Storage {
 	if dbInstance != nil {
 		return dbInstance
 	}
 
-	conn, err := sql.Open("sqlite3", dbUrl)
+	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", username, password, host, port, database)
+	conn, err := sql.Open("mysql", connStr)
 	if err != nil {
 		log.Fatal("Couldn't connect to database ", err)
 	}
@@ -60,7 +60,7 @@ func NewStorage() Storage {
 
 	queries = db.New(conn)
 
-	dbInstance = &storage{
+	dbInstance = &Storage{
 		db:      conn,
 		ctx:     ctx,
 		queries: queries,
@@ -71,7 +71,7 @@ func NewStorage() Storage {
 
 // Health checks the health of the database connection by pinging the database.
 // It returns a map with keys indicating various health statistics.
-func (s *storage) Health() map[string]string {
+func (s *Storage) Health() map[string]string {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -124,7 +124,7 @@ func (s *storage) Health() map[string]string {
 // It logs a message indicating the disconnection from the specific database.
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
-func (s *storage) Close() error {
-	log.Printf("Disconnected from database: %s", dbUrl)
+func (s *Storage) Close() error {
+	log.Printf("Disconnected from database: %s", database)
 	return s.db.Close()
 }

@@ -17,7 +17,7 @@ type Api interface {
 
 type api struct {
 	*fiber.App
-	db data.Storage
+	db *data.Storage
 }
 
 func New() Api {

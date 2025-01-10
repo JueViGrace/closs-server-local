@@ -9,7 +9,7 @@ func (a *api) ConfigRoutes(api fiber.Router) {
 	group := api.Group("/config")
 	adminGroup := group.Group("/config")
 
-	handler := handlers.NewConfigHandler(a.db.ConfigStore())
+	handler := handlers.NewConfigHandler(a.db)
 
 	adminGroup.Get("/", handler.GetConfigs)
 	group.Get("/:id", handler.GetConfigsByUser)

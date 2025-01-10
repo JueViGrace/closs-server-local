@@ -13,10 +13,10 @@ type AuthHandler interface {
 }
 
 type authHandler struct {
-	db data.AuthStore
+	db *data.Storage
 }
 
-func NewAuthHandler(db data.AuthStore) AuthHandler {
+func NewAuthHandler(db *data.Storage) AuthHandler {
 	return &authHandler{
 		db: db,
 	}

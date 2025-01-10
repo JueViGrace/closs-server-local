@@ -1,15 +1,4 @@
 -- +goose Up
-CREATE TABLE IF NOT EXISTS closs_company(
-    ked_codigo TEXT NOT NULL PRIMARY KEY,
-    ked_nombre TEXT NOT NULL DEFAULT '',
-    ked_status INTEGER NOT NULL DEFAULT 0,
-    ked_enlace TEXT NOT NULL DEFAULT '',
-    ked_agen TEXT NOT NULL DEFAULT 'mcbo',
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TEXT DEFAULT NULL
-);
-
 CREATE TABLE IF NOT EXISTS closs_config(
     cnfg_idconfig TEXT NOT NULL,
     cnfg_clase TEXT NOT NULL DEFAULT '',

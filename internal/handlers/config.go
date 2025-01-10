@@ -15,10 +15,10 @@ type ConfigHandler interface {
 }
 
 type configHandler struct {
-	db data.ConfigStore
+	db *data.Storage
 }
 
-func NewConfigHandler(db data.ConfigStore) ConfigHandler {
+func NewConfigHandler(db *data.Storage) ConfigHandler {
 	return &configHandler{
 		db: db,
 	}
