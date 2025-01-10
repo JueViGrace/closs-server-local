@@ -1,0 +1,15 @@
+services:
+  clo_db:
+    image: mysql:9.1.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - clo_db_volume:/var/lib/postgres/data
+
+volumes:
+  clo_db_volume:

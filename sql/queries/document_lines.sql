@@ -1,0 +1,82 @@
+-- name: CreateDocumentLine :one
+insert into closs_document_lines (
+    agencia,
+    tipodoc,
+    documento,
+    tipodocv,
+    grupo,
+    subgrupo,
+    origen,
+    codigo,
+    codhijo,
+    pid,
+    nombre,
+    cantidad,
+    cntdevuelt,
+    vndcntdevuelt,
+    dvndmtototal,
+    dpreciofin,
+    dpreciounit,
+    dmontoneto,
+    dmontototal,
+    timpueprc,
+    unidevuelt,
+    fechadoc,
+    vendedor,
+    codcoord
+)
+values(
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?
+)
+RETURNING *;
+
+-- name: UpdateDocumentLine :one
+update closs_document_lines set 
+    agencia = ?,
+    tipodoc = ?,
+    tipodocv = ?,
+    grupo = ?,
+    subgrupo = ?,
+    origen = ?,
+    codhijo = ?,
+    pid = ?,
+    nombre = ?,
+    cantidad = ?,
+    cntdevuelt = ?,
+    vndcntdevuelt = ?,
+    dvndmtototal = ?,
+    dpreciofin = ?,
+    dpreciounit = ?,
+    dmontoneto = ?,
+    dmontototal = ?,
+    timpueprc = ?,
+    unidevuelt = ?,
+    fechadoc = ?,
+    vendedor = ?,
+    codcoord = ?
+WHERE documento = ? and codigo = ?
+RETURNING *;
+
