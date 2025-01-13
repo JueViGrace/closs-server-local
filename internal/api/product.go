@@ -7,11 +7,8 @@ import (
 
 func (a *api) ProductRoutes(api fiber.Router) {
 	group := api.Group("/products")
-	handler := handlers.NewProductHandler(a.db.ProductStore())
+	handler := handlers.NewProductHandler(a.db)
 
 	group.Get("/", handler.GetProducts)
 	group.Get("/:code", handler.GetProductByCode)
-	group.Post("/", handler.CreateProduct)
-	group.Patch("/", handler.UpdateProduct)
-	group.Delete("/:code", handler.DeleteProduct)
 }

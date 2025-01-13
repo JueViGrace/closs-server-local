@@ -7,9 +7,7 @@ import (
 
 func (a *api) UserRoutes(api fiber.Router) {
 	group := api.Group("/users")
-	handler := handlers.NewUserHandler(a.db.UserStore())
+	handler := handlers.NewUserHandler(a.db)
 
-	group.Get("/", handler.GetUsers)
 	group.Get("/:id", handler.GetUserById)
-	group.Delete("/:id", handler.DeleteUser)
 }

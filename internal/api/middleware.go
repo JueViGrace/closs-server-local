@@ -44,7 +44,7 @@ func (a *api) sessionMiddleware(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	_, err = a.db.SessionStore().GetSessionById(data.jwt.claims.UserId.String())
+	_, err = a.db.Queries.GetTokenById(data.jwt.claims.UserId.String())
 	if err != nil {
 		res := types.RespondUnauthorized(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)
@@ -53,9 +53,9 @@ func (a *api) sessionMiddleware(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-func getUserDataForReq(c *fiber.Ctx, db data.Storage) (*AuthData, error) {
+func getUserDataForReq(c *fiber.Ctx, db *data.Storage) (*AuthData, error) {
 	jwt, err := extractJWTFromHeader(c, func(s string) {
-		db.SessionStore().DeleteSessionByToken(s)
+		db.Queries.DeleteSessionByToken(s)
 	})
 	if err != nil {
 		return nil, err

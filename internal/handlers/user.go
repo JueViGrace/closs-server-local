@@ -8,32 +8,17 @@ import (
 )
 
 type UserHandler interface {
-	GetUsers(c *fiber.Ctx) error
 	GetUserById(c *fiber.Ctx) error
-	DeleteUser(c *fiber.Ctx) error
 }
 
 type userHandler struct {
-	db data.UserStore
+	db *data.Storage
 }
 
-func NewUserHandler(db data.UserStore) UserHandler {
+func NewUserHandler(db *data.Storage) UserHandler {
 	return &userHandler{
 		db: db,
 	}
-}
-
-func (h *userHandler) GetUsers(c *fiber.Ctx) error {
-	res := new(types.APIResponse)
-
-	users, err := h.db.GetUsers()
-	if err != nil {
-		res = types.RespondNotFound(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondOk(users, "Success")
-	return c.Status(res.Status).JSON(res)
 }
 
 func (h *userHandler) GetUserById(c *fiber.Ctx) error {
@@ -44,30 +29,12 @@ func (h *userHandler) GetUserById(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	user, err := h.db.GetUserById(id)
+	user, err := h.db.Queries.GetUserById(id)
 	if err != nil {
 		res = types.RespondNotFound(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)
 	}
 
 	res = types.RespondOk(user, "Success")
-	return c.Status(res.Status).JSON(res)
-}
-
-func (h *userHandler) DeleteUser(c *fiber.Ctx) error {
-	res := new(types.APIResponse)
-	id, err := util.GetIdFromParams(c.Params("id"))
-	if err != nil {
-		res = types.RespondBadRequest(err.Error(), "Invalid request")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	err = h.db.DeleteUser(id)
-	if err != nil {
-		res = types.RespondNotFound(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondNoContent("Deleted", "Success")
 	return c.Status(res.Status).JSON(res)
 }

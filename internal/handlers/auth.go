@@ -32,7 +32,7 @@ func (h *authHandler) SignIn(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	token, err := h.db.SignIn(r)
+	token, err := h.db.Queries.SignIn(r)
 	if err != nil {
 		res = types.RespondNotFound(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)
@@ -51,7 +51,7 @@ func (h *authHandler) Refresh(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	token, err := h.db.Refresh(r)
+	token, err := h.db.Queries.Refresh(r)
 	if err != nil {
 		res = types.RespondNotFound(err.Error(), "Invalid request")
 		return c.Status(res.Status).JSON(res)

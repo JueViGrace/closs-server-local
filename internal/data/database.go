@@ -28,8 +28,8 @@ import (
 
 type Storage struct {
 	db      *sql.DB
-	ctx     context.Context
-	queries *db.Queries
+	Ctx     context.Context
+	Queries *db.Queries
 }
 
 var (
