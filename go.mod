@@ -1,4 +1,4 @@
-module github.com/JueViGrace/clo-backend
+module github.com/JueViGrace/closs-server-local
 
 go 1.23.1
 

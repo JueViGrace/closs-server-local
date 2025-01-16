@@ -9,22 +9,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/JueViGrace/clo-backend/internal/db"
+	"github.com/JueViGrace/closs-server-local/internal/db"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv/autoload"
 )
-
-// type torage interface {
-// 	Health() map[string]string
-// 	Close() error
-//
-// 	SessionStore() SessionStore
-// 	AuthStore() AuthStore
-// 	ConfigStore() ConfigStore
-// 	OrderStore() OrderStore
-// 	ProductStore() ProductStore
-// 	UserStore() UserStore
-// }
 
 type Storage struct {
 	db      *sql.DB

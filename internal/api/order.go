@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/JueViGrace/clo-backend/internal/handlers"
+	"github.com/JueViGrace/closs-server-local/internal/handlers"
 	"github.com/gofiber/fiber/v2"
 )
 

@@ -1,5 +1,7 @@
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
+github.com/JueViGrace/clo-backend v0.0.0-20250110163348-0ac1cbce3d2c h1:vzgFy4RzjkxBj7J9j1qkXSA3SHjZSUn3rn7mWH1PFdg=
+github.com/JueViGrace/clo-backend v0.0.0-20250110163348-0ac1cbce3d2c/go.mod h1:NSd0laSQrOeS75ncFcEWa68nzRMU3XmMED93O+IHl+Y=
 github.com/andybalholm/brotli v1.0.5 h1:8uQZIdzKmjc/iuPu7O2ioW48L81FgatrcpfFmiq/cCs=
 github.com/andybalholm/brotli v1.0.5/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/go-sql-driver/mysql v1.8.1 h1:LedoTUt/eveggdHS9qUFC1EFSa8bU2+1pZjSRpvNJ1Y=

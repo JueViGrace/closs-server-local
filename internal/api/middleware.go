@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/JueViGrace/clo-backend/internal/data"
-	"github.com/JueViGrace/clo-backend/internal/types"
-	"github.com/JueViGrace/clo-backend/internal/util"
+	"github.com/JueViGrace/closs-server-local/internal/data"
+	"github.com/JueViGrace/closs-server-local/internal/types"
+	"github.com/JueViGrace/closs-server-local/internal/util"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -20,21 +20,6 @@ type AuthData struct {
 type JwtData struct {
 	token  *jwt.Token
 	claims util.JWTClaims
-}
-
-func (a *api) adminAuthMiddleware(c *fiber.Ctx) error {
-	data, err := getUserDataForReq(c, a.db)
-	if err != nil {
-		res := types.RespondUnauthorized(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	if data.role != types.Admin {
-		res := types.RespondForbbiden("permission denied", "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	return c.Next()
 }
 
 func (a *api) sessionMiddleware(c *fiber.Ctx) error {
@@ -61,7 +46,7 @@ func getUserDataForReq(c *fiber.Ctx, db *data.Storage) (*AuthData, error) {
 		return nil, err
 	}
 
-	user, err := db.UserStore().GetUserById(&jwt.claims.UserId)
+	user, err := db.Queries.GetUserById(&jwt.claims.UserId)
 	if err != nil {
 		return nil, err
 	}

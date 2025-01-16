@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/JueViGrace/clo-backend/internal/api"
+	"github.com/JueViGrace/closs-server-local/internal/api"
 )
 
 type CloServer struct {

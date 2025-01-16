@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/JueViGrace/clo-backend/internal/data"
-	"github.com/JueViGrace/clo-backend/internal/types"
+	"github.com/JueViGrace/closs-server-local/internal/data"
+	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/gofiber/fiber/v2"
 )
 

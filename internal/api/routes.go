@@ -3,7 +3,7 @@ package api
 import (
 	"time"
 
-	"github.com/JueViGrace/clo-backend/internal/types"
+	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 )

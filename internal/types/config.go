@@ -3,8 +3,8 @@ package types
 import (
 	"time"
 
-	"github.com/JueViGrace/clo-backend/internal/db"
-	"github.com/JueViGrace/clo-backend/internal/util"
+	"github.com/JueViGrace/closs-server-local/internal/db"
+	"github.com/JueViGrace/closs-server-local/internal/util"
 )
 
 type ConfigResponse struct {

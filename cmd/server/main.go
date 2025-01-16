@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/JueViGrace/clo-backend/internal/server"
+	"github.com/JueViGrace/closs-server-local/internal/server"
 	_ "github.com/joho/godotenv/autoload"
 )
 

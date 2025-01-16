@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/JueViGrace/clo-backend/internal/data"
+	"github.com/JueViGrace/closs-server-local/internal/data"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
