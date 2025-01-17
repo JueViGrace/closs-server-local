@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"github.com/JueViGrace/closs-server-local/internal/data"
-	"github.com/JueViGrace/closs-server-local/internal/types"
-	"github.com/JueViGrace/closs-server-local/internal/util"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -22,19 +20,20 @@ func NewUserHandler(db *data.Storage) UserHandler {
 }
 
 func (h *userHandler) GetUserById(c *fiber.Ctx) error {
-	res := new(types.APIResponse)
-	id, err := util.GetIdFromParams(c.Params("id"))
-	if err != nil {
-		res = types.RespondBadRequest(err.Error(), "Invalid request")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	user, err := h.db.Queries.GetUserById(id)
-	if err != nil {
-		res = types.RespondNotFound(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondOk(user, "Success")
-	return c.Status(res.Status).JSON(res)
+	// res := new(types.APIResponse)
+	// id, err := util.GetIdFromParams(c.Params("id"))
+	// if err != nil {
+	// 	res = types.RespondBadRequest(err.Error(), "Invalid request")
+	// 	return c.Status(res.Status).JSON(res)
+	// }
+	//
+	// user, err := h.db.Queries.GetUserById(id)
+	// if err != nil {
+	// 	res = types.RespondNotFound(err.Error(), "Failed")
+	// 	return c.Status(res.Status).JSON(res)
+	// }
+	//
+	// res = types.RespondOk(user, "Success")
+	// return c.Status(res.Status).JSON(res)
+	return nil
 }

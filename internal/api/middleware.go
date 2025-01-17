@@ -23,38 +23,39 @@ type JwtData struct {
 }
 
 func (a *api) sessionMiddleware(c *fiber.Ctx) error {
-	data, err := getUserDataForReq(c, a.db)
+	_, err := getUserDataForReq(c, a.db)
 	if err != nil {
 		res := types.RespondUnauthorized(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)
 	}
 
-	_, err = a.db.Queries.GetTokenById(data.jwt.claims.UserId.String())
-	if err != nil {
-		res := types.RespondUnauthorized(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
+	// _, err = a.db.Queries.GetTokenById(data.jwt.claims.UserId.String())
+	// if err != nil {
+	// 	res := types.RespondUnauthorized(err.Error(), "Failed")
+	// 	return c.Status(res.Status).JSON(res)
+	// }
 
 	return c.Next()
 }
 
 func getUserDataForReq(c *fiber.Ctx, db *data.Storage) (*AuthData, error) {
-	jwt, err := extractJWTFromHeader(c, func(s string) {
-		db.Queries.DeleteSessionByToken(s)
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := db.Queries.GetUserById(&jwt.claims.UserId)
-	if err != nil {
-		return nil, err
-	}
-
-	return &AuthData{
-		jwt:  *jwt,
-		role: user.Role.String(),
-	}, nil
+	// jwt, err := extractJWTFromHeader(c, func(s string) {
+	// 	db.Queries.DeleteSessionByToken(s)
+	// })
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//
+	// user, err := db.Queries.GetUserById(&jwt.claims.UserId)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//
+	// return &AuthData{
+	// 	jwt:  *jwt,
+	// 	role: user.Role.String(),
+	// }, nil
+	return nil, nil
 }
 
 func extractJWTFromHeader(c *fiber.Ctx, expired func(string)) (*JwtData, error) {

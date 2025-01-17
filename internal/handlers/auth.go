@@ -24,41 +24,43 @@ func NewAuthHandler(db *data.Storage) AuthHandler {
 
 // todo: set token cookie or header
 func (h *authHandler) SignIn(c *fiber.Ctx) error {
-	res := new(types.APIResponse)
-	r := new(types.SignInRequest)
-
-	if err := c.BodyParser(r); err != nil {
-		res = types.RespondBadRequest(err.Error(), "Invalid request")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	token, err := h.db.Queries.SignIn(r)
-	if err != nil {
-		res = types.RespondNotFound(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondOk(token, "Success")
-	return c.Status(res.Status).JSON(res)
+	// res := new(types.APIResponse)
+	// r := new(types.SignInRequest)
+	//
+	// if err := c.BodyParser(r); err != nil {
+	// 	res = types.RespondBadRequest(err.Error(), "Invalid request")
+	// 	return c.Status(res.Status).JSON(res)
+	// }
+	//
+	// token, err := h.db.Queries.SignIn(r)
+	// if err != nil {
+	// 	res = types.RespondNotFound(err.Error(), "Failed")
+	// 	return c.Status(res.Status).JSON(res)
+	// }
+	//
+	// res = types.RespondOk(token, "Success")
+	// return c.Status(res.Status).JSON(res)
+	return nil
 }
 
 func (h *authHandler) Refresh(c *fiber.Ctx) error {
-	res := new(types.APIResponse)
-	r := new(types.RefreshRequest)
-
-	if err := c.BodyParser(r); err == nil {
-		res = types.RespondBadRequest(err.Error(), "Invalid request")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	token, err := h.db.Queries.Refresh(r)
-	if err != nil {
-		res = types.RespondNotFound(err.Error(), "Invalid request")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondOk(token, "Success")
-	return c.Status(res.Status).JSON(res)
+	// res := new(types.APIResponse)
+	// r := new(types.RefreshRequest)
+	//
+	// if err := c.BodyParser(r); err == nil {
+	// 	res = types.RespondBadRequest(err.Error(), "Invalid request")
+	// 	return c.Status(res.Status).JSON(res)
+	// }
+	//
+	// token, err := h.db.Queries.Refresh(r)
+	// if err != nil {
+	// 	res = types.RespondNotFound(err.Error(), "Invalid request")
+	// 	return c.Status(res.Status).JSON(res)
+	// }
+	//
+	// res = types.RespondOk(token, "Success")
+	// return c.Status(res.Status).JSON(res)
+	return nil
 }
 
 func (h *authHandler) RecoverPassword(c *fiber.Ctx) error {

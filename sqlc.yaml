@@ -5,5 +5,5 @@ sql:
     schema: "sql/schema"
     gen:
       go:
-        out: "internal/db"
-        package: "db"
+        out: "internal/database"
+        package: "database"

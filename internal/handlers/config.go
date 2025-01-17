@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/JueViGrace/closs-server-local/internal/data"
-	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -21,15 +20,16 @@ func NewConfigHandler(db *data.Storage) ConfigHandler {
 }
 
 func (h *configHandler) GetConfigsByUser(c *fiber.Ctx) error {
-	res := new(types.APIResponse)
-
-	config, err := h.db.Queries.GetConfigsByUser(c.Params("username"))
-	if err != nil {
-
-		res = types.RespondNotFound(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondOk(config, "Success")
-	return c.Status(res.Status).JSON(res)
+	// res := new(types.APIResponse)
+	//
+	// config, err := h.db.Queries.GetConfigsByUser(c.Params("username"))
+	// if err != nil {
+	//
+	// 	res = types.RespondNotFound(err.Error(), "Failed")
+	// 	return c.Status(res.Status).JSON(res)
+	// }
+	//
+	// res = types.RespondOk(config, "Success")
+	// return c.Status(res.Status).JSON(res)
+	return nil
 }

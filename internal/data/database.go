@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/JueViGrace/closs-server-local/internal/db"
+	"github.com/JueViGrace/closs-server-local/internal/database"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -17,18 +17,18 @@ import (
 type Storage struct {
 	db      *sql.DB
 	Ctx     context.Context
-	Queries *db.Queries
+	Queries *database.Queries
 }
 
 var (
-	database   = os.Getenv("DB_NAME")
+	dbName     = os.Getenv("DB_NAME")
 	password   = os.Getenv("DB_PASSWORD")
 	username   = os.Getenv("DB_USERNAME")
 	port       = os.Getenv("DB_PORT")
 	host       = os.Getenv("DB_HOST")
 	ctx        = context.Background()
 	dbInstance *Storage
-	queries    *db.Queries
+	queries    *database.Queries
 )
 
 func NewStorage() *Storage {
@@ -36,7 +36,7 @@ func NewStorage() *Storage {
 		return dbInstance
 	}
 
-	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", username, password, host, port, database)
+	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", username, password, host, port, dbName)
 	conn, err := sql.Open("mysql", connStr)
 	if err != nil {
 		log.Fatal("Couldn't connect to database ", err)
@@ -46,12 +46,12 @@ func NewStorage() *Storage {
 		log.Fatal("Ping to the database failed ", err)
 	}
 
-	queries = db.New(conn)
+	queries = database.New(conn)
 
 	dbInstance = &Storage{
 		db:      conn,
-		ctx:     ctx,
-		queries: queries,
+		Ctx:     ctx,
+		Queries: queries,
 	}
 
 	return dbInstance
@@ -113,6 +113,6 @@ func (s *Storage) Health() map[string]string {
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
 func (s *Storage) Close() error {
-	log.Printf("Disconnected from database: %s", database)
+	log.Printf("Disconnected from database: %s", dbName)
 	return s.db.Close()
 }
