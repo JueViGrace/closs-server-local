@@ -7,6 +7,7 @@ import (
 )
 
 type UserHandler interface {
+	GetUsers(c *fiber.Ctx) error
 	GetUserById(c *fiber.Ctx, a *types.AuthData) error
 }
 
@@ -20,15 +21,28 @@ func NewUserHandler(db *data.Storage) UserHandler {
 	}
 }
 
+func (h *userHandler) GetUsers(c *fiber.Ctx) error {
+	res := new(types.APIResponse)
+
+	users, err := h.db.Queries.GetUsers(h.db.Ctx)
+	if err != nil {
+		res = types.RespondNotFound(err.Error(), "Failed")
+		return c.Status(res.Status).JSON(res)
+	}
+
+	res = types.RespondOk(users, "Success")
+	return c.Status(res.Status).JSON(res)
+}
+
 func (h *userHandler) GetUserById(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
 
-	// user, err := h.db.Queries.GetUserById(h.db.Ctx, a.Jwt.Claims.UserId.String())
-	// if err != nil {
-	// 	res = types.RespondNotFound(err.Error(), "Failed")
-	// 	return c.Status(res.Status).JSON(res)
-	// }
+	user, err := h.db.Queries.GetUserByUsername(h.db.Ctx, a.Jwt.Claims.Username)
+	if err != nil {
+		res = types.RespondNotFound(err.Error(), "Failed")
+		return c.Status(res.Status).JSON(res)
+	}
 
-	res = types.RespondOk(types.UserResponse{}, "Success")
+	res = types.RespondOk(user, "Success")
 	return c.Status(res.Status).JSON(res)
 }

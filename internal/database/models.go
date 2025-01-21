@@ -232,6 +232,38 @@ type KeSession struct {
 	UserID string
 }
 
+type KeWusuario struct {
+	Username          string
+	Userid            string
+	Desactivo         bool
+	Sevence           bool
+	Vigenciadesde     time.Time
+	Vigenciahasta     time.Time
+	Cedula            string
+	Fechanac          time.Time
+	Nombre            string
+	Direccion         string
+	Telefono          string
+	Email             string
+	MailServidor      string
+	MailPuerto        int32
+	MailLogin         string
+	MailPassword      string
+	MailAutenticacion bool
+	MailCifrada       bool
+	Cliente           string
+	Vendedor          string
+	Almacen           string
+	Agenciausu        string
+	Formatofac        string
+	Copiasfac         bool
+	Formatofac2       string
+	Copiasfac2        bool
+	Rutaquery         string
+	Rutareporte       string
+	Fechamodifi       time.Time
+}
+
 type Opermv struct {
 	IDEmpresa       string
 	Agencia         string

@@ -505,6 +505,39 @@ CREATE TABLE IF NOT EXISTS opermv (
   KEY opmvcodhijo2 (codhijo,codigo)
 );
 
+CREATE TABLE IF NOT EXISTS ke_wusuarios (
+  username varchar(25) NOT NULL DEFAULT '',
+  userid varchar(15) NOT NULL DEFAULT '',
+  desactivo tinyint(1) NOT NULL DEFAULT 0,
+  sevence tinyint(1) NOT NULL DEFAULT 0,
+  vigenciadesde date NOT NULL DEFAULT '0000-00-00',
+  vigenciahasta date NOT NULL DEFAULT '0000-00-00',
+  cedula varchar(14) NOT NULL DEFAULT '',
+  fechanac date NOT NULL DEFAULT '0000-00-00',
+  nombre varchar(50) NOT NULL DEFAULT '',
+  direccion varchar(170) NOT NULL DEFAULT '',
+  telefono varchar(30) NOT NULL DEFAULT '',
+  email varchar(30) NOT NULL DEFAULT '',
+  mail_servidor varchar(30) NOT NULL DEFAULT '',
+  mail_puerto int(4) NOT NULL DEFAULT 25,
+  mail_login varchar(30) NOT NULL DEFAULT '',
+  mail_password varchar(20) NOT NULL DEFAULT '',
+  mail_autenticacion tinyint(1) NOT NULL DEFAULT 0,
+  mail_cifrada tinyint(1) NOT NULL DEFAULT 0,
+  cliente varchar(20) NOT NULL DEFAULT '',
+  vendedor varchar(8) NOT NULL DEFAULT '',
+  almacen varchar(2) NOT NULL DEFAULT '',
+  agenciausu varchar(3) NOT NULL DEFAULT '',
+  formatofac varchar(25) NOT NULL DEFAULT '',
+  copiasfac tinyint(1) NOT NULL DEFAULT 1,
+  formatofac2 varchar(25) NOT NULL DEFAULT '',
+  copiasfac2 tinyint(1) NOT NULL DEFAULT 0,
+  rutaquery varchar(254) NOT NULL DEFAULT '',
+  rutareporte varchar(254) NOT NULL DEFAULT '',
+  fechamodifi datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  PRIMARY KEY (username)
+);
+
 CREATE TABLE IF NOT EXISTS ke_session(
     token TEXT NOT NULL,
     user_id TEXT NOT NULL PRIMARY KEY
