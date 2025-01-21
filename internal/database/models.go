@@ -227,6 +227,11 @@ type Articulo struct {
 	Liquida            bool
 }
 
+type KeSession struct {
+	Token  string
+	UserID string
+}
+
 type Opermv struct {
 	IDEmpresa       string
 	Agencia         string

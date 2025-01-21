@@ -1,5 +1,5 @@
 -- +goose Up
-CREATE TABLE articulo (
+CREATE TABLE IF NOT EXISTS articulo (
   id_empresa varchar(6) NOT NULL DEFAULT ' ',
   agencia varchar(3) NOT NULL DEFAULT ' ',
   codigo varchar(25) NOT NULL DEFAULT ' ',
@@ -219,7 +219,7 @@ CREATE TABLE articulo (
   KEY nombre (nombre)
 );
 
-CREATE TABLE operti (
+CREATE TABLE IF NOT EXISTS operti (
   id_empresa varchar(6) NOT NULL DEFAULT '',
   agencia varchar(3) NOT NULL DEFAULT ' ',
   tipodoc varchar(3) NOT NULL DEFAULT ' ',
@@ -382,7 +382,7 @@ CREATE TABLE operti (
   KEY recalculo (tipodoc,estatusdoc)
 );
 
-CREATE TABLE opermv (
+CREATE TABLE IF NOT EXISTS opermv (
   id_empresa varchar(6) NOT NULL DEFAULT '',
   agencia varchar(3) NOT NULL DEFAULT '',
   tipodoc varchar(3) NOT NULL DEFAULT '',
@@ -503,6 +503,11 @@ CREATE TABLE opermv (
   KEY opermvnewppal (agencia,tipodoc,documento),
   KEY opmvcodhijo (codigo,codhijo),
   KEY opmvcodhijo2 (codhijo,codigo)
+);
+
+CREATE TABLE IF NOT EXISTS ke_session(
+    token TEXT NOT NULL,
+    user_id TEXT NOT NULL PRIMARY KEY
 );
 
 -- +goose Down

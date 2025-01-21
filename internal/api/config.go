@@ -10,5 +10,5 @@ func (a *api) ConfigRoutes(api fiber.Router) {
 
 	handler := handlers.NewConfigHandler(a.db)
 
-	group.Get("/:id", handler.GetConfigsByUser)
+	group.Get("/:id", a.authenticatedRoute(handler.GetConfigsByUser))
 }

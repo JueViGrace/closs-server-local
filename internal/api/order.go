@@ -9,6 +9,6 @@ func (a *api) OrderRoutes(api fiber.Router) {
 	group := api.Group("/orders")
 	handler := handlers.NewOrderHandler(a.db)
 
-	group.Get("/", handler.GetOrders)
-	group.Get("/:code", handler.GetOrderByCode)
+	group.Get("/", a.authenticatedRoute(handler.GetOrders))
+	group.Get("/:code", a.authenticatedRoute(handler.GetOrderByCode))
 }

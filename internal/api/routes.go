@@ -15,8 +15,8 @@ func (a *api) RegisterRoutes() {
 func (a *api) ApiRoutes() {
 	api := a.App.Group("/api")
 
-	api.Get("/health", a.HealthRoute)
-	api.Get("/metrics", monitor.New(monitor.Config{
+	api.Get("/health", a.sessionMiddleware, a.HealthRoute)
+	api.Get("/metrics", a.sessionMiddleware, monitor.New(monitor.Config{
 		Refresh: time.Duration(time.Second),
 	}))
 

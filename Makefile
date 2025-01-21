@@ -3,8 +3,17 @@ all: build test
 
 build:
 	@echo "Building ..."
+
+	@source ~/.envs/.go_lin_env
 	
-	@go build -o ./bin/main ./cmd/server/main.go
+	@go build -o ./bin/server ./cmd/server/main.go
+
+win-build:
+	@echo "Building ..."
+
+	@source ~/.envs/.go_win_env
+
+	@go build -buildmode=exe -o ./bin/win-server.exe ./cmd/server/main.go
 
 # Run the application
 run:
@@ -44,7 +53,7 @@ itest:
 # Clean the binary
 clean:
 	@echo "Cleaning..."
-	rm -f ./bin/main
+	rm -f ./bin/server
 
 # Live Reload
 watch:
@@ -72,4 +81,4 @@ migrate-up:
 migrate-down:
 	@GOOSE_DRIVER=sqlite3 GOOSE_MIGRATION_DIR=./sql/schema GOOSE_DBSTRING=./closs.db goose down
 
-.PHONY: all build run test clean watch docker-run docker-down sqlc migrate-up migrate-down itest
+.PHONY: all build win-build run test clean watch docker-run docker-down sqlc migrate-up migrate-down itest
