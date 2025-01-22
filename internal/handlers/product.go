@@ -8,9 +8,7 @@ import (
 
 type ProductHandler interface {
 	GetProducts(c *fiber.Ctx) error
-	GetExistingProducts(c *fiber.Ctx) error
 	GetProductByCode(c *fiber.Ctx) error
-	GetExistingProductByCode(c *fiber.Ctx) error
 }
 
 type productHandler struct {
@@ -27,24 +25,16 @@ func NewProductHandler(db *data.Storage, v *types.XValidator) ProductHandler {
 
 func (h *productHandler) GetProducts(c *fiber.Ctx) error {
 	res := new(types.APIResponse)
+	products := make([]types.ProductResponse, 0)
 
-	products, err := h.db.Queries.GetProducts(h.db.Ctx)
+	dbProducts, err := h.db.Queries.GetProducts(h.db.Ctx)
 	if err != nil {
 		res = types.RespondNotFound(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)
 	}
 
-	res = types.RespondOk(products, "Success")
-	return c.Status(res.Status).JSON(res)
-}
-
-func (h *productHandler) GetExistingProducts(c *fiber.Ctx) error {
-	res := new(types.APIResponse)
-
-	products, err := h.db.Queries.GetExistingProducts(h.db.Ctx)
-	if err != nil {
-		res = types.RespondNotFound(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
+	for _, p := range dbProducts {
+		products = append(products, *types.DbProductToProduct(&p))
 	}
 
 	res = types.RespondOk(products, "Success")
@@ -54,18 +44,6 @@ func (h *productHandler) GetExistingProducts(c *fiber.Ctx) error {
 func (h *productHandler) GetProductByCode(c *fiber.Ctx) error {
 	res := new(types.APIResponse)
 	product, err := h.db.Queries.GetProductByCode(h.db.Ctx, c.Params("code"))
-	if err != nil {
-		res = types.RespondNotFound(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondOk(product, "Success")
-	return c.Status(res.Status).JSON(res)
-}
-
-func (h *productHandler) GetExistingProductByCode(c *fiber.Ctx) error {
-	res := new(types.APIResponse)
-	product, err := h.db.Queries.GetExistingProductByCode(h.db.Ctx, c.Params("code"))
 	if err != nil {
 		res = types.RespondNotFound(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)

@@ -93,6 +93,22 @@ func (h *authHandler) Refresh(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
+	if errs := h.validator.Validate(r); len(errs) > 0 {
+		errMsgs := make([]string, 0)
+
+		for _, err := range errs {
+			errMsgs = append(errMsgs, fmt.Sprintf(
+				"[%s]: '%v' | Needs to implement '%s'",
+				err.FailedField,
+				err.Value,
+				err.Tag,
+			))
+		}
+
+		res = types.RespondBadRequest(nil, strings.Join(errMsgs, " and "))
+		return c.Status(res.Status).JSON(res)
+	}
+
 	token, err := util.ValidateJWT(r.Token)
 	if err != nil {
 		h.db.Cache.SessionStorage().DeleteSession(r.Token)

@@ -7,7 +7,6 @@ import (
 )
 
 type UserHandler interface {
-	GetUsers(c *fiber.Ctx) error
 	GetUserById(c *fiber.Ctx, a *types.AuthData) error
 }
 
@@ -21,19 +20,6 @@ func NewUserHandler(db *data.Storage, v *types.XValidator) UserHandler {
 		db:        db,
 		validator: v,
 	}
-}
-
-func (h *userHandler) GetUsers(c *fiber.Ctx) error {
-	res := new(types.APIResponse)
-
-	users, err := h.db.Queries.GetUsers(h.db.Ctx)
-	if err != nil {
-		res = types.RespondNotFound(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondOk(users, "Success")
-	return c.Status(res.Status).JSON(res)
 }
 
 func (h *userHandler) GetUserById(c *fiber.Ctx, a *types.AuthData) error {
