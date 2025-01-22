@@ -6,7 +6,7 @@ from ke_wusuarios
 -- name: GetUserByUsername :one
 select *
 from ke_wusuarios
-where username = ?
+where username = ? and desactivo != 1
 ;
 
 -- name: UpdatePassword :exec

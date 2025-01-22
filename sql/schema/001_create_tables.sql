@@ -534,13 +534,10 @@ CREATE TABLE IF NOT EXISTS ke_wusuarios (
   copiasfac2 tinyint(1) NOT NULL DEFAULT 0,
   rutaquery varchar(254) NOT NULL DEFAULT '',
   rutareporte varchar(254) NOT NULL DEFAULT '',
+  password_app varchar(32) NOT NULL DEFAULT '' COMMENT 'Contraseña de la APP Movil. Encriptada en MD5 (con Base 64).',
+  tipo int(11) NOT NULL DEFAULT 0 COMMENT 'Tipo de Usuario, segun listado combinado (Por los momentos solo va a existir:1=Pickeador)',
   fechamodifi datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (username)
-);
-
-CREATE TABLE IF NOT EXISTS ke_session(
-    token TEXT NOT NULL,
-    user_id TEXT NOT NULL PRIMARY KEY
 );
 
 -- +goose Down

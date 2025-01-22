@@ -6,14 +6,14 @@ type AuthResponse struct {
 }
 
 type SignInRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }
 
 type RefreshRequest struct {
-	Token string `json:"refreshToken"`
+	Token string `json:"refreshToken" validate:"required"`
 }
 
 type RecoverPasswordResquest struct {
-	Username string `json:"username"`
+	Username string `json:"username" validate:"required"`
 }

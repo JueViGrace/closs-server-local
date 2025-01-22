@@ -18,7 +18,7 @@ func (a *api) sessionMiddleware(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	_, err = a.db.Queries.GetSessionById(a.db.Ctx, data.Jwt.Claims.UserId.String())
+	_, err = a.db.Cache.SessionStorage().GetSessionByKey(data.User.Username)
 	if err != nil {
 		res := types.RespondUnauthorized(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)
@@ -35,7 +35,7 @@ func (a *api) authenticatedRoute(handler types.AuthDataHandler) fiber.Handler {
 			return c.Status(res.Status).JSON(res)
 		}
 
-		_, err = a.db.Queries.GetSessionById(a.db.Ctx, data.Jwt.Claims.UserId.String())
+		_, err = a.db.Cache.SessionStorage().GetSessionByKey(data.User.Username)
 		if err != nil {
 			res := types.RespondUnauthorized(err.Error(), "Failed")
 			return c.Status(res.Status).JSON(res)
@@ -47,19 +47,19 @@ func (a *api) authenticatedRoute(handler types.AuthDataHandler) fiber.Handler {
 
 func getUserDataForReq(c *fiber.Ctx, db *data.Storage) (*types.AuthData, error) {
 	jwt, err := extractJWTFromHeader(c, func(s string) {
-		db.Queries.DeleteSessionByToken(db.Ctx, s)
+		db.Cache.SessionStorage().DeleteSession(s)
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	// user, err := db.Queries.GetUserById(db.Ctx, jwt.Claims.UserId.String())
-	// if err != nil {
-	// 	return nil, err
-	// }
+	user, err := db.Queries.GetUserByUsername(db.Ctx, jwt.Claims.Username)
+	if err != nil {
+		return nil, err
+	}
 
 	return &types.AuthData{
-		Jwt: *jwt,
+		User: *types.DbUserToUser(&user),
 	}, nil
 }
 

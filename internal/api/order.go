@@ -7,7 +7,7 @@ import (
 
 func (a *api) OrderRoutes(api fiber.Router) {
 	group := api.Group("/orders")
-	handler := handlers.NewOrderHandler(a.db)
+	handler := handlers.NewOrderHandler(a.db, a.validator)
 
 	group.Get("/", a.authenticatedRoute(handler.GetOrders))
 	group.Get("/:code", a.authenticatedRoute(handler.GetOrderByCode))

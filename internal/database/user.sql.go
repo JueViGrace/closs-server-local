@@ -10,9 +10,9 @@ import (
 )
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-select username, userid, desactivo, sevence, vigenciadesde, vigenciahasta, cedula, fechanac, nombre, direccion, telefono, email, mail_servidor, mail_puerto, mail_login, mail_password, mail_autenticacion, mail_cifrada, cliente, vendedor, almacen, agenciausu, formatofac, copiasfac, formatofac2, copiasfac2, rutaquery, rutareporte, fechamodifi
+select username, userid, desactivo, sevence, vigenciadesde, vigenciahasta, cedula, fechanac, nombre, direccion, telefono, email, mail_servidor, mail_puerto, mail_login, mail_password, mail_autenticacion, mail_cifrada, cliente, vendedor, almacen, agenciausu, formatofac, copiasfac, formatofac2, copiasfac2, rutaquery, rutareporte, password_app, tipo, fechamodifi
 from ke_wusuarios
-where username = ?
+where username = ? and desactivo != 1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (KeWusuario, error) {
@@ -47,13 +47,15 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (KeWus
 		&i.Copiasfac2,
 		&i.Rutaquery,
 		&i.Rutareporte,
+		&i.PasswordApp,
+		&i.Tipo,
 		&i.Fechamodifi,
 	)
 	return i, err
 }
 
 const getUsers = `-- name: GetUsers :many
-select username, userid, desactivo, sevence, vigenciadesde, vigenciahasta, cedula, fechanac, nombre, direccion, telefono, email, mail_servidor, mail_puerto, mail_login, mail_password, mail_autenticacion, mail_cifrada, cliente, vendedor, almacen, agenciausu, formatofac, copiasfac, formatofac2, copiasfac2, rutaquery, rutareporte, fechamodifi
+select username, userid, desactivo, sevence, vigenciadesde, vigenciahasta, cedula, fechanac, nombre, direccion, telefono, email, mail_servidor, mail_puerto, mail_login, mail_password, mail_autenticacion, mail_cifrada, cliente, vendedor, almacen, agenciausu, formatofac, copiasfac, formatofac2, copiasfac2, rutaquery, rutareporte, password_app, tipo, fechamodifi
 from ke_wusuarios
 `
 
@@ -95,6 +97,8 @@ func (q *Queries) GetUsers(ctx context.Context) ([]KeWusuario, error) {
 			&i.Copiasfac2,
 			&i.Rutaquery,
 			&i.Rutareporte,
+			&i.PasswordApp,
+			&i.Tipo,
 			&i.Fechamodifi,
 		); err != nil {
 			return nil, err

@@ -14,12 +14,14 @@ type ProductHandler interface {
 }
 
 type productHandler struct {
-	db *data.Storage
+	db        *data.Storage
+	validator *types.XValidator
 }
 
-func NewProductHandler(db *data.Storage) ProductHandler {
+func NewProductHandler(db *data.Storage, v *types.XValidator) ProductHandler {
 	return &productHandler{
-		db: db,
+		db:        db,
+		validator: v,
 	}
 }
 

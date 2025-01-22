@@ -11,12 +11,14 @@ type ConfigHandler interface {
 }
 
 type configHandler struct {
-	db *data.Storage
+	db        *data.Storage
+	validator *types.XValidator
 }
 
-func NewConfigHandler(db *data.Storage) ConfigHandler {
+func NewConfigHandler(db *data.Storage, v *types.XValidator) ConfigHandler {
 	return &configHandler{
-		db: db,
+		db:        db,
+		validator: v,
 	}
 }
 

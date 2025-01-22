@@ -20,9 +20,8 @@ var (
 )
 
 type userClaims struct {
-	UserId   uuid.UUID `json:"userId"`
-	Username string    `json:"username"`
-	Code     string    `json:"code"`
+	Username string `json:"username"`
+	Code     string `json:"code"`
 }
 
 type JWTClaims struct {
@@ -30,28 +29,22 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-func CreateAccessToken(id, username, code string) (string, error) {
-	return createJWT(id, username, code, accessExpiration)
+func CreateAccessToken(username, code string) (string, error) {
+	return createJWT(username, code, accessExpiration)
 }
 
-func CreateRefreshToken(id, username, code string) (string, error) {
-	return createJWT(id, username, code, refreshExpiration)
+func CreateRefreshToken(username, code string) (string, error) {
+	return createJWT(username, code, refreshExpiration)
 }
 
-func createJWT(id, username, code string, expiration time.Time) (string, error) {
+func createJWT(username, code string, expiration time.Time) (string, error) {
 	tokenId, err := uuid.NewV7()
-	if err != nil {
-		return "", err
-	}
-
-	userId, err := uuid.Parse(id)
 	if err != nil {
 		return "", err
 	}
 
 	claims := JWTClaims{
 		userClaims{
-			UserId:   userId,
 			Username: username,
 			Code:     code,
 		},
@@ -60,7 +53,7 @@ func createJWT(id, username, code string, expiration time.Time) (string, error) 
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    Issuer,
-			Subject:   id,
+			Subject:   username,
 			ID:        tokenId.String(),
 			Audience:  Audience,
 		},

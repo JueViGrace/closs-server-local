@@ -227,11 +227,6 @@ type Articulo struct {
 	Liquida            bool
 }
 
-type KeSession struct {
-	Token  string
-	UserID string
-}
-
 type KeWusuario struct {
 	Username          string
 	Userid            string
@@ -261,7 +256,11 @@ type KeWusuario struct {
 	Copiasfac2        bool
 	Rutaquery         string
 	Rutareporte       string
-	Fechamodifi       time.Time
+	// Contraseña de la APP Movil. Encriptada en MD5 (con Base 64).
+	PasswordApp string
+	// Tipo de Usuario, segun listado combinado (Por los momentos solo va a existir:1=Pickeador)
+	Tipo        int32
+	Fechamodifi time.Time
 }
 
 type Opermv struct {

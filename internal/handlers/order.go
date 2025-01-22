@@ -14,12 +14,14 @@ type OrderHandler interface {
 }
 
 type orderHandler struct {
-	db *data.Storage
+	db        *data.Storage
+	validator *types.XValidator
 }
 
-func NewOrderHandler(db *data.Storage) OrderHandler {
+func NewOrderHandler(db *data.Storage, v *types.XValidator) OrderHandler {
 	return &orderHandler{
-		db: db,
+		db:        db,
+		validator: v,
 	}
 }
 

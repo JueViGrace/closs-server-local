@@ -12,12 +12,14 @@ type UserHandler interface {
 }
 
 type userHandler struct {
-	db *data.Storage
+	db        *data.Storage
+	validator *types.XValidator
 }
 
-func NewUserHandler(db *data.Storage) UserHandler {
+func NewUserHandler(db *data.Storage, v *types.XValidator) UserHandler {
 	return &userHandler{
-		db: db,
+		db:        db,
+		validator: v,
 	}
 }
 
@@ -37,7 +39,7 @@ func (h *userHandler) GetUsers(c *fiber.Ctx) error {
 func (h *userHandler) GetUserById(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
 
-	user, err := h.db.Queries.GetUserByUsername(h.db.Ctx, a.Jwt.Claims.Username)
+	user, err := h.db.Queries.GetUserByUsername(h.db.Ctx, a.User.Username)
 	if err != nil {
 		res = types.RespondNotFound(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)

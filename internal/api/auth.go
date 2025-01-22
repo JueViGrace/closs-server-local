@@ -7,7 +7,7 @@ import (
 
 func (a *api) AuthRoutes(api fiber.Router) {
 	group := api.Group("/auth")
-	handler := handlers.NewAuthHandler(a.db)
+	handler := handlers.NewAuthHandler(a.db, a.validator)
 
 	group.Post("/signIn", handler.SignIn)
 	group.Post("/recover/password", handler.RecoverPassword)

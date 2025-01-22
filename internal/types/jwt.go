@@ -6,7 +6,7 @@ import (
 )
 
 type AuthData struct {
-	Jwt JwtData
+	User UserResponse
 }
 
 type JwtData struct {
