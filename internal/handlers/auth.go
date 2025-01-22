@@ -5,15 +5,15 @@ import (
 	"strings"
 
 	"github.com/JueViGrace/closs-server-local/internal/data"
-	"github.com/JueViGrace/closs-server-local/internal/database"
 	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/JueViGrace/closs-server-local/internal/util"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 type AuthHandler interface {
 	SignIn(c *fiber.Ctx) error
-	Refresh(c *fiber.Ctx) error
+	Refresh(c *fiber.Ctx, a *types.AuthData) error
 	RecoverPassword(c *fiber.Ctx) error
 }
 
@@ -54,24 +54,32 @@ func (h *authHandler) SignIn(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	user, err := h.db.Queries.GetUserByUsername(h.db.Ctx, r.Username)
+	dbUser, err := h.db.Queries.GetUserByUsername(h.db.Ctx, r.Username)
 	if err != nil {
 		res = types.RespondNotFound(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
 
-	if !util.ValidatePassword(r.Password, user.PasswordApp) {
+	id, err := uuid.NewV7()
+	if err != nil {
+		res = types.RespondNotFound(nil, err.Error())
+		return c.Status(res.Status).JSON(res)
+	}
+
+	user := types.DbUserToUser(id, &dbUser)
+
+	if !util.ValidatePassword(r.Password, user.Password) {
 		res = types.RespondBadRequest(nil, "invalid credentials")
 		return c.Status(res.Status).JSON(res)
 	}
 
-	token, err := createTokens(&user)
+	token, err := createTokens(user)
 	if err != nil {
 		res = types.RespondNotFound(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
 
-	err = h.db.Cache.SessionStorage().CreateSession(&types.Session{
+	err = h.db.Cache.SessionStorage().CreateSession(user.ID, &types.Session{
 		Username:     user.Username,
 		RefreshToken: token.RefreshToken,
 	})
@@ -84,7 +92,7 @@ func (h *authHandler) SignIn(c *fiber.Ctx) error {
 	return c.Status(res.Status).JSON(res)
 }
 
-func (h *authHandler) Refresh(c *fiber.Ctx) error {
+func (h *authHandler) Refresh(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
 	r := new(types.RefreshRequest)
 
@@ -109,34 +117,22 @@ func (h *authHandler) Refresh(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	token, err := util.ValidateJWT(r.Token)
-	if err != nil {
-		h.db.Cache.SessionStorage().DeleteSession(r.Token)
-		res = types.RespondBadRequest(nil, err.Error())
-		return c.Status(res.Status).JSON(res)
-	}
-
-	claims, ok := token.Claims.(util.JWTClaims)
-	if !ok {
-		h.db.Cache.SessionStorage().DeleteSession(r.Token)
-		res = types.RespondBadRequest(nil, "invalid request")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	user, err := h.db.Queries.GetUserByUsername(h.db.Ctx, claims.Username)
+	dbUser, err := h.db.Queries.GetUserByUsername(h.db.Ctx, a.Username)
 	if err != nil {
 		res = types.RespondBadRequest(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
 
-	newTokens, err := createTokens(&user)
+	user := types.DbUserToUser(a.UserId, &dbUser)
+
+	newTokens, err := createTokens(user)
 	if err != nil {
 		res = types.RespondBadRequest(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
 
-	err = h.db.Cache.SessionStorage().UpdateSession(&types.Session{
-		Username:     user.Username,
+	err = h.db.Cache.SessionStorage().UpdateSession(user.ID, &types.Session{
+		Username:     dbUser.Username,
 		RefreshToken: newTokens.RefreshToken,
 	})
 	if err != nil {
@@ -153,13 +149,13 @@ func (h *authHandler) RecoverPassword(c *fiber.Ctx) error {
 	return c.Status(res.Status).JSON(res)
 }
 
-func createTokens(user *database.KeWusuario) (*types.AuthResponse, error) {
-	accessToken, err := util.CreateAccessToken(user.Username, user.Vendedor)
+func createTokens(user *types.UserResponse) (*types.AuthResponse, error) {
+	accessToken, err := util.CreateAccessToken(user.ID.String(), user.Username, user.Code)
 	if err != nil {
 		return nil, err
 	}
 
-	refreshToken, err := util.CreateRefreshToken(user.Username, user.Vendedor)
+	refreshToken, err := util.CreateRefreshToken(user.ID.String(), user.Username, user.Code)
 	if err != nil {
 		return nil, err
 	}

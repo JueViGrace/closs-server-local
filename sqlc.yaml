@@ -1,9 +1,16 @@
 version: "2"
 sql:
-  - engine: "mysql"
-    queries: "sql/queries"
-    schema: "sql/schema"
+  - schema: "sql/mysql/schema"
+    engine: "mysql"
+    queries: "sql/mysql/queries"
     gen:
       go:
-        out: "internal/database"
+        out: "internal/database/mysql"
+        package: "database"
+  - schema: "sql/sqlite/schema"
+    engine: "sqlite"
+    queries: "sql/sqlite/queries"
+    gen:
+      go:
+        out: "internal/database/sqlite"
         package: "database"

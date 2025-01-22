@@ -9,5 +9,5 @@ func (a *api) ConfigRoutes(api fiber.Router) {
 	group := api.Group("/config")
 	handler := handlers.NewConfigHandler(a.db, a.validator)
 
-	group.Get("/:id", a.authenticatedRoute(handler.GetConfigsByUser))
+	group.Get("/:id", a.authenticatedHandler(handler.GetConfigsByUser))
 }

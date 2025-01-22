@@ -76,9 +76,9 @@ sqlc:
 	@sqlc generate
 
 migrate-up:
-	@GOOSE_DRIVER=sqlite3 GOOSE_MIGRATION_DIR=./sql/schema GOOSE_DBSTRING=./closs.db goose up  
+	@GOOSE_DRIVER=sqlite3 GOOSE_MIGRATION_DIR=./sql/sqlite/schema GOOSE_DBSTRING=./server.db goose up  
 
 migrate-down:
-	@GOOSE_DRIVER=sqlite3 GOOSE_MIGRATION_DIR=./sql/schema GOOSE_DBSTRING=./closs.db goose down
+	@GOOSE_DRIVER=sqlite3 GOOSE_MIGRATION_DIR=./sql/sqlite/schema GOOSE_DBSTRING=./server.db goose down
 
 .PHONY: all build win-build run test clean watch docker-run docker-down sqlc migrate-up migrate-down itest

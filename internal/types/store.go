@@ -1,6 +1,8 @@
 package types
 
-type SessionStore = map[string]string
+import "github.com/google/uuid"
+
+type SessionStore = map[uuid.UUID]Session
 
 type Session struct {
 	Username     string

@@ -5,13 +5,14 @@ import (
 	"errors"
 
 	"github.com/JueViGrace/closs-server-local/internal/types"
+	"github.com/google/uuid"
 )
 
 type SessionStorage interface {
-	GetSessionByKey(key string) (session *types.Session, err error)
-	CreateSession(r *types.Session) (err error)
-	UpdateSession(r *types.Session) (err error)
-	DeleteSession(key string) (err error)
+	GetSessionByKey(key uuid.UUID) (session *types.Session, err error)
+	CreateSession(id uuid.UUID, r *types.Session) (err error)
+	UpdateSession(id uuid.UUID, r *types.Session) (err error)
+	DeleteSession(key uuid.UUID) (err error)
 }
 
 func (s *cacheStorage) SessionStorage() SessionStorage {
@@ -31,43 +32,49 @@ func NewSessionStorage(ctx context.Context) SessionStorage {
 	}
 }
 
-func (s *sessionStorage) GetSessionByKey(key string) (*types.Session, error) {
+func (s *sessionStorage) GetSessionByKey(key uuid.UUID) (*types.Session, error) {
 	v, ok := s.store[key]
 	if !ok {
 		return nil, errors.New("this entry doesn't exists")
 	}
 
 	session := &types.Session{
-		Username:     key,
-		RefreshToken: v,
+		Username:     v.Username,
+		RefreshToken: v.RefreshToken,
 	}
 
 	return session, nil
 }
 
-func (s *sessionStorage) CreateSession(r *types.Session) error {
-	_, ok := s.store[r.Username]
+func (s *sessionStorage) CreateSession(id uuid.UUID, r *types.Session) error {
+	_, ok := s.store[id]
 	if ok {
 		return errors.New("This entry already exists")
 	}
 
-	s.store[r.Username] = r.RefreshToken
+	s.store[id] = types.Session{
+		Username:     r.Username,
+		RefreshToken: r.RefreshToken,
+	}
 
 	return nil
 }
 
-func (s *sessionStorage) UpdateSession(r *types.Session) error {
-	_, ok := s.store[r.Username]
+func (s *sessionStorage) UpdateSession(id uuid.UUID, r *types.Session) error {
+	_, ok := s.store[id]
 	if !ok {
 		return errors.New("this entry doesn't exists")
 	}
 
-	s.store[r.Username] = r.RefreshToken
+	s.store[id] = types.Session{
+		Username:     r.Username,
+		RefreshToken: r.RefreshToken,
+	}
 
 	return nil
 }
 
-func (s *sessionStorage) DeleteSession(key string) error {
+func (s *sessionStorage) DeleteSession(key uuid.UUID) error {
 	_, ok := s.store[key]
 	if !ok {
 		return errors.New("this entry doesn't exists")

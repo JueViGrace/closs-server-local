@@ -25,11 +25,13 @@ func NewUserHandler(db *data.Storage, v *types.XValidator) UserHandler {
 func (h *userHandler) GetUserById(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
 
-	user, err := h.db.Queries.GetUserByUsername(h.db.Ctx, a.User.Username)
+	dbUser, err := h.db.Queries.GetUserByUsername(h.db.Ctx, a.Username)
 	if err != nil {
 		res = types.RespondNotFound(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)
 	}
+
+	user := types.DbUserToUser(a.UserId, &dbUser)
 
 	res = types.RespondOk(user, "Success")
 	return c.Status(res.Status).JSON(res)

@@ -3,10 +3,13 @@ package types
 import (
 	"github.com/JueViGrace/closs-server-local/internal/util"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 type AuthData struct {
-	User UserResponse
+	UserId   uuid.UUID
+	Username string
+	Code     string
 }
 
 type JwtData struct {

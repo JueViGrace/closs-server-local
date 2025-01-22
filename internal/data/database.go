@@ -18,18 +18,16 @@ type Storage struct {
 	db      *sql.DB
 	Ctx     context.Context
 	Queries *database.Queries
-	Cache   CacheStorage
 }
 
 var (
-	dbName                     = os.Getenv("DB_NAME")
-	password                   = os.Getenv("DB_PASSWORD")
-	username                   = os.Getenv("DB_USERNAME")
-	port                       = os.Getenv("DB_PORT")
-	host                       = os.Getenv("DB_HOST")
-	cacheInstance CacheStorage = NewCacheStorage()
-	dbInstance    *Storage
-	queries       *database.Queries
+	dbName     = os.Getenv("DB_NAME")
+	password   = os.Getenv("DB_PASSWORD")
+	username   = os.Getenv("DB_USERNAME")
+	port       = os.Getenv("DB_PORT")
+	host       = os.Getenv("DB_HOST")
+	dbInstance *Storage
+	queries    *database.Queries
 )
 
 func NewStorage() *Storage {
@@ -53,7 +51,6 @@ func NewStorage() *Storage {
 		db:      conn,
 		Ctx:     context.Background(),
 		Queries: queries,
-		Cache:   cacheInstance,
 	}
 
 	return dbInstance

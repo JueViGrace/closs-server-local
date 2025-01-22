@@ -20,8 +20,9 @@ var (
 )
 
 type userClaims struct {
-	Username string `json:"username"`
-	Code     string `json:"code"`
+	UserId   uuid.UUID `json:"userId"`
+	Username string    `json:"username"`
+	Code     string    `json:"code"`
 }
 
 type JWTClaims struct {
@@ -29,22 +30,28 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-func CreateAccessToken(username, code string) (string, error) {
-	return createJWT(username, code, accessExpiration)
+func CreateAccessToken(id, username, code string) (string, error) {
+	return createJWT(id, username, code, accessExpiration)
 }
 
-func CreateRefreshToken(username, code string) (string, error) {
-	return createJWT(username, code, refreshExpiration)
+func CreateRefreshToken(id, username, code string) (string, error) {
+	return createJWT(id, username, code, refreshExpiration)
 }
 
-func createJWT(username, code string, expiration time.Time) (string, error) {
+func createJWT(id, username, code string, expiration time.Time) (string, error) {
 	tokenId, err := uuid.NewV7()
+	if err != nil {
+		return "", err
+	}
+
+	userId, err := uuid.Parse(id)
 	if err != nil {
 		return "", err
 	}
 
 	claims := JWTClaims{
 		userClaims{
+			UserId:   userId,
 			Username: username,
 			Code:     code,
 		},

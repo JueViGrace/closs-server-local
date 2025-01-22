@@ -9,5 +9,5 @@ func (a *api) UserRoutes(api fiber.Router) {
 	group := api.Group("/users")
 	handler := handlers.NewUserHandler(a.db, a.validator)
 
-	group.Get("/me", a.authenticatedRoute(handler.GetUserById))
+	group.Get("/me", a.authenticatedHandler(handler.GetUserById))
 }

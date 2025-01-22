@@ -10,6 +10,6 @@ func (a *api) AuthRoutes(api fiber.Router) {
 	handler := handlers.NewAuthHandler(a.db, a.validator)
 
 	group.Post("/signIn", handler.SignIn)
+	group.Post("/refresh", a.authenticatedHandler(handler.Refresh))
 	group.Post("/recover/password", handler.RecoverPassword)
-	group.Post("/refresh", handler.Refresh)
 }

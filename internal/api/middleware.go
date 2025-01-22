@@ -9,16 +9,11 @@ import (
 	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/JueViGrace/closs-server-local/internal/util"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 func (a *api) sessionMiddleware(c *fiber.Ctx) error {
-	data, err := getUserDataForReq(c, a.db)
-	if err != nil {
-		res := types.RespondUnauthorized(err.Error(), "Failed")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	_, err = a.db.Cache.SessionStorage().GetSessionByKey(data.User.Username)
+	_, err := getUserDataForReq(c, a.db)
 	if err != nil {
 		res := types.RespondUnauthorized(err.Error(), "Failed")
 		return c.Status(res.Status).JSON(res)
@@ -27,17 +22,11 @@ func (a *api) sessionMiddleware(c *fiber.Ctx) error {
 	return c.Next()
 }
 
-func (a *api) authenticatedRoute(handler types.AuthDataHandler) fiber.Handler {
+func (a *api) authenticatedHandler(handler types.AuthDataHandler) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		data, err := getUserDataForReq(c, a.db)
 		if err != nil {
 			res := types.RespondBadRequest(err.Error(), "Failure")
-			return c.Status(res.Status).JSON(res)
-		}
-
-		_, err = a.db.Cache.SessionStorage().GetSessionByKey(data.User.Username)
-		if err != nil {
-			res := types.RespondUnauthorized(err.Error(), "Failed")
 			return c.Status(res.Status).JSON(res)
 		}
 
@@ -46,24 +35,29 @@ func (a *api) authenticatedRoute(handler types.AuthDataHandler) fiber.Handler {
 }
 
 func getUserDataForReq(c *fiber.Ctx, db *data.Storage) (*types.AuthData, error) {
-	jwt, err := extractJWTFromHeader(c, func(s string) {
+	jwt, err := extractJWTFromHeader(c, func(s uuid.UUID) {
 		db.Cache.SessionStorage().DeleteSession(s)
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := db.Queries.GetUserByUsername(db.Ctx, jwt.Claims.Username)
+	session, err := db.Cache.SessionStorage().GetSessionByKey(jwt.Claims.UserId)
 	if err != nil {
 		return nil, err
 	}
 
+	dbUser, err := db.Queries.GetUserByUsername(db.Ctx, session.Username)
+
+	// todo: fill code
 	return &types.AuthData{
-		User: *types.DbUserToUser(&user),
+		UserId:   jwt.Claims.UserId,
+		Username: dbUser.Username,
+		Code:     "",
 	}, nil
 }
 
-func extractJWTFromHeader(c *fiber.Ctx, expired func(string)) (*types.JwtData, error) {
+func extractJWTFromHeader(c *fiber.Ctx, expired func(uuid.UUID)) (*types.JwtData, error) {
 	header := strings.Join(c.GetReqHeaders()["Authorization"], "")
 
 	if !strings.HasPrefix(header, "Bearer") {
@@ -77,18 +71,16 @@ func extractJWTFromHeader(c *fiber.Ctx, expired func(string)) (*types.JwtData, e
 	}
 
 	if !token.Valid {
-		expired(tokenString)
 		return nil, errors.New("permission denied")
 	}
 
 	claims, ok := token.Claims.(util.JWTClaims)
 	if !ok {
-		expired(tokenString)
 		return nil, errors.New("permission denied")
 	}
 
 	if claims.ExpiresAt.Time.UTC().Unix() < time.Now().UTC().Unix() {
-		expired(tokenString)
+		expired(claims.UserId)
 		return nil, errors.New("permision denied")
 	}
 

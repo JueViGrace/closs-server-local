@@ -1,12 +1,16 @@
 package data
 
-import "context"
+import (
+	"context"
+	"database/sql"
+)
 
 type CacheStorage interface {
 	SessionStorage() SessionStorage
 }
 
 type cacheStorage struct {
+	db  *sql.DB
 	ctx context.Context
 }
 
