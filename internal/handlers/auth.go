@@ -54,7 +54,16 @@ func (h *authHandler) SignIn(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	dbUser, err := h.db.Queries.GetUserByUsername(h.db.Ctx, r.Username)
+	dbSession, err := h.db.CacheStore.SessionStorage().GetSessionByUsername(r.Username)
+	if err == nil {
+		err = h.db.CacheStore.SessionStorage().DeleteSession(dbSession.UserId)
+		if err != nil {
+			res = types.RespondBadRequest(nil, err.Error())
+			return c.Status(res.Status).JSON(res)
+		}
+	}
+
+	dbUser, err := h.db.MyStore.Queries.GetUserByUsername(h.db.MyStore.Ctx, r.Username)
 	if err != nil {
 		res = types.RespondNotFound(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
@@ -79,7 +88,8 @@ func (h *authHandler) SignIn(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	err = h.db.Cache.SessionStorage().CreateSession(user.ID, &types.Session{
+	err = h.db.CacheStore.SessionStorage().CreateSession(&types.Session{
+		UserId:       user.ID,
 		Username:     user.Username,
 		RefreshToken: token.RefreshToken,
 	})
@@ -117,7 +127,7 @@ func (h *authHandler) Refresh(c *fiber.Ctx, a *types.AuthData) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	dbUser, err := h.db.Queries.GetUserByUsername(h.db.Ctx, a.Username)
+	dbUser, err := h.db.MyStore.Queries.GetUserByUsername(h.db.MyStore.Ctx, a.Username)
 	if err != nil {
 		res = types.RespondBadRequest(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
@@ -131,7 +141,8 @@ func (h *authHandler) Refresh(c *fiber.Ctx, a *types.AuthData) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	err = h.db.Cache.SessionStorage().UpdateSession(user.ID, &types.Session{
+	err = h.db.CacheStore.SessionStorage().UpdateSession(&types.Session{
+		UserId:       user.ID,
 		Username:     dbUser.Username,
 		RefreshToken: newTokens.RefreshToken,
 	})

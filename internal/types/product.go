@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/JueViGrace/closs-server-local/internal/database"
+	database "github.com/JueViGrace/closs-server-local/internal/database/mysql"
 )
 
 type ProductResponse struct {

@@ -9,35 +9,32 @@ import (
 	"strconv"
 	"time"
 
-	database "github.com/JueViGrace/closs-server-local/internal/database/sqlite"
-	_ "github.com/joho/godotenv/autoload"
-	_ "github.com/mattn/go-sqlite3"
+	database "github.com/JueViGrace/closs-server-local/internal/database/mysql"
 )
 
-type CacheStore interface {
-	SessionStorage() SessionStorage
-	health() map[string]string
-	close() error
+type MySQLStore struct {
+	db      *sql.DB
+	Ctx     context.Context
+	Queries *database.Queries
 }
 
 var (
-	dbUrl         string = os.Getenv("DB_URL")
-	cacheInstance *cacheStore
-	cacheQueries  *database.Queries
+	dbName     = os.Getenv("DB_NAME")
+	password   = os.Getenv("DB_PASSWORD")
+	username   = os.Getenv("DB_USERNAME")
+	port       = os.Getenv("DB_PORT")
+	host       = os.Getenv("DB_HOST")
+	myInstance *MySQLStore
+	myQueries  *database.Queries
 )
 
-type cacheStore struct {
-	db      *sql.DB
-	ctx     context.Context
-	queries *database.Queries
-}
-
-func newCacheStorage() CacheStore {
-	if cacheInstance != nil {
-		return cacheInstance
+func newMySQLStorage() *MySQLStore {
+	if myInstance != nil {
+		return myInstance
 	}
 
-	conn, err := sql.Open("sqlite3", dbUrl)
+	connStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", username, password, host, port, dbName)
+	conn, err := sql.Open("mysql", connStr)
 	if err != nil {
 		log.Fatal("Couldn't connect to database ", err)
 	}
@@ -46,18 +43,20 @@ func newCacheStorage() CacheStore {
 		log.Fatal("Ping to the database failed ", err)
 	}
 
-	cacheQueries = database.New(conn)
+	myQueries = database.New(conn)
 
-	return &cacheStore{
+	myInstance = &MySQLStore{
 		db:      conn,
-		ctx:     ctx,
-		queries: cacheQueries,
+		Ctx:     ctx,
+		Queries: myQueries,
 	}
+
+	return myInstance
 }
 
 // Health checks the health of the database connection by pinging the database.
-// It returns a map with keys indicating various health statistics
-func (s *cacheStore) health() map[string]string {
+// It returns a map with keys indicating various health statistics.
+func (s *MySQLStore) health() map[string]string {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -110,7 +109,7 @@ func (s *cacheStore) health() map[string]string {
 // It logs a message indicating the disconnection from the specific database.
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
-func (s *cacheStore) close() error {
+func (s *MySQLStore) close() error {
 	log.Printf("Disconnected from database: %s", dbName)
 	return s.db.Close()
 }

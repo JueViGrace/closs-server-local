@@ -2,85 +2,101 @@ package data
 
 import (
 	"context"
-	"errors"
 
+	database "github.com/JueViGrace/closs-server-local/internal/database/sqlite"
 	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/google/uuid"
 )
 
 type SessionStorage interface {
-	GetSessionByKey(key uuid.UUID) (session *types.Session, err error)
-	CreateSession(id uuid.UUID, r *types.Session) (err error)
-	UpdateSession(id uuid.UUID, r *types.Session) (err error)
-	DeleteSession(key uuid.UUID) (err error)
+	GetSessionById(id uuid.UUID) (session *types.Session, err error)
+	GetSessionByUsername(username string) (session *types.Session, err error)
+	CreateSession(r *types.Session) (err error)
+	UpdateSession(r *types.Session) (err error)
+	DeleteSession(id uuid.UUID) (err error)
 }
 
-func (s *cacheStorage) SessionStorage() SessionStorage {
-	return NewSessionStorage(s.ctx)
+func (s *cacheStore) SessionStorage() SessionStorage {
+	return NewSessionStorage(s.ctx, s.queries)
 }
 
 type sessionStorage struct {
-	ctx   context.Context
-	store types.SessionStore
+	ctx context.Context
+	db  *database.Queries
 }
 
-func NewSessionStorage(ctx context.Context) SessionStorage {
-	store := make(types.SessionStore)
+func NewSessionStorage(ctx context.Context, queries *database.Queries) SessionStorage {
 	return &sessionStorage{
-		ctx:   ctx,
-		store: store,
+		ctx: ctx,
+		db:  queries,
 	}
 }
 
-func (s *sessionStorage) GetSessionByKey(key uuid.UUID) (*types.Session, error) {
-	v, ok := s.store[key]
-	if !ok {
-		return nil, errors.New("this entry doesn't exists")
+func (s *sessionStorage) GetSessionById(id uuid.UUID) (*types.Session, error) {
+	session, err := s.db.GetSessionById(s.ctx, id.String())
+	if err != nil {
+		return nil, err
 	}
 
-	session := &types.Session{
-		Username:     v.Username,
-		RefreshToken: v.RefreshToken,
+	userId, err := uuid.Parse(session.UserID)
+	if err != nil {
+		return nil, err
 	}
 
-	return session, nil
+	return &types.Session{
+		UserId:       userId,
+		Username:     session.Username,
+		RefreshToken: session.Token,
+	}, nil
 }
 
-func (s *sessionStorage) CreateSession(id uuid.UUID, r *types.Session) error {
-	_, ok := s.store[id]
-	if ok {
-		return errors.New("This entry already exists")
+func (s *sessionStorage) GetSessionByUsername(username string) (*types.Session, error) {
+	session, err := s.db.GetSessionByUsername(s.ctx, username)
+	if err != nil {
+		return nil, err
 	}
 
-	s.store[id] = types.Session{
-		Username:     r.Username,
-		RefreshToken: r.RefreshToken,
+	userId, err := uuid.Parse(session.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.Session{
+		UserId:       userId,
+		Username:     session.Username,
+		RefreshToken: session.Token,
+	}, nil
+}
+
+func (s *sessionStorage) CreateSession(r *types.Session) error {
+	err := s.db.CreateSession(s.ctx, database.CreateSessionParams{
+		Token:    r.RefreshToken,
+		Username: r.Username,
+		UserID:   r.UserId.String(),
+	})
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (s *sessionStorage) UpdateSession(id uuid.UUID, r *types.Session) error {
-	_, ok := s.store[id]
-	if !ok {
-		return errors.New("this entry doesn't exists")
-	}
-
-	s.store[id] = types.Session{
-		Username:     r.Username,
-		RefreshToken: r.RefreshToken,
+func (s *sessionStorage) UpdateSession(r *types.Session) error {
+	err := s.db.UpdateSession(s.ctx, database.UpdateSessionParams{
+		Token:  r.RefreshToken,
+		UserID: r.UserId.String(),
+	})
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (s *sessionStorage) DeleteSession(key uuid.UUID) error {
-	_, ok := s.store[key]
-	if !ok {
-		return errors.New("this entry doesn't exists")
+func (s *sessionStorage) DeleteSession(id uuid.UUID) error {
+	err := s.db.DeleteSessionById(s.ctx, id.String())
+	if err != nil {
+		return err
 	}
-
-	delete(s.store, key)
-
 	return nil
 }

@@ -1,8 +1,8 @@
 package types
 
 type AuthResponse struct {
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type SignInRequest struct {
@@ -11,7 +11,7 @@ type SignInRequest struct {
 }
 
 type RefreshRequest struct {
-	Token string `json:"refreshToken" validate:"required"`
+	Token string `json:"refresh_token" validate:"required"`
 }
 
 type RecoverPasswordResquest struct {

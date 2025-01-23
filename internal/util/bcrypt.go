@@ -1,18 +1,12 @@
 package util
 
-import "golang.org/x/crypto/bcrypt"
-
-func HashPassword(password string) (string, error) {
-	encpw, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-
-	pass := string(encpw)
-
-	return pass, nil
-}
+import (
+	"crypto/md5"
+	"encoding/hex"
+)
 
 func ValidatePassword(reqPass, encPass string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(encPass), []byte(reqPass)) == nil
+	hash := md5.Sum([]byte(reqPass))
+	hashedPass := hex.EncodeToString(hash[:])
+	return hashedPass == encPass
 }

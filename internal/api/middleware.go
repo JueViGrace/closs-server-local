@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 func (a *api) sessionMiddleware(c *fiber.Ctx) error {
 	_, err := getUserDataForReq(c, a.db)
 	if err != nil {
-		res := types.RespondUnauthorized(err.Error(), "Failed")
+		res := types.RespondUnauthorized(nil, "you are not authorized to access this endpoint")
 		return c.Status(res.Status).JSON(res)
 	}
 
@@ -26,7 +27,7 @@ func (a *api) authenticatedHandler(handler types.AuthDataHandler) fiber.Handler 
 	return func(c *fiber.Ctx) error {
 		data, err := getUserDataForReq(c, a.db)
 		if err != nil {
-			res := types.RespondBadRequest(err.Error(), "Failure")
+			res := types.RespondUnauthorized(nil, "you are not authorized to access this endpoint")
 			return c.Status(res.Status).JSON(res)
 		}
 
@@ -36,18 +37,18 @@ func (a *api) authenticatedHandler(handler types.AuthDataHandler) fiber.Handler 
 
 func getUserDataForReq(c *fiber.Ctx, db *data.Storage) (*types.AuthData, error) {
 	jwt, err := extractJWTFromHeader(c, func(s uuid.UUID) {
-		db.Cache.SessionStorage().DeleteSession(s)
+		db.CacheStore.SessionStorage().DeleteSession(s)
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	session, err := db.Cache.SessionStorage().GetSessionByKey(jwt.Claims.UserId)
+	session, err := db.CacheStore.SessionStorage().GetSessionById(jwt.Claims.UserId)
 	if err != nil {
 		return nil, err
 	}
 
-	dbUser, err := db.Queries.GetUserByUsername(db.Ctx, session.Username)
+	dbUser, err := db.MyStore.Queries.GetUserByUsername(db.MyStore.Ctx, session.Username)
 
 	// todo: fill code
 	return &types.AuthData{
@@ -67,14 +68,14 @@ func extractJWTFromHeader(c *fiber.Ctx, expired func(uuid.UUID)) (*types.JwtData
 	tokenString := strings.Split(header, " ")[1]
 	token, err := util.ValidateJWT(tokenString)
 	if err != nil {
-		return nil, errors.New("permission denied")
+		return nil, fmt.Errorf("permission denied, cause: %s", err.Error())
 	}
 
 	if !token.Valid {
 		return nil, errors.New("permission denied")
 	}
 
-	claims, ok := token.Claims.(util.JWTClaims)
+	claims, ok := token.Claims.(*util.JWTClaims)
 	if !ok {
 		return nil, errors.New("permission denied")
 	}
@@ -95,6 +96,6 @@ func extractJWTFromHeader(c *fiber.Ctx, expired func(uuid.UUID)) (*types.JwtData
 
 	return &types.JwtData{
 		Token:  token,
-		Claims: claims,
+		Claims: *claims,
 	}, nil
 }

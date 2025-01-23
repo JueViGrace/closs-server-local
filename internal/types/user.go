@@ -3,7 +3,7 @@ package types
 import (
 	"time"
 
-	"github.com/JueViGrace/closs-server-local/internal/database"
+	database "github.com/JueViGrace/closs-server-local/internal/database/mysql"
 	"github.com/google/uuid"
 )
 
@@ -11,11 +11,16 @@ type UserResponse struct {
 	ID        uuid.UUID `json:"id"`
 	Username  string    `json:"username"`
 	Password  string    `json:"-"`
-	Code      string    `json:"codigo"`
-	LastSync  time.Time `json:"lastSync"`
+	Code      string    `json:"code"`
+	LastSync  time.Time `json:"last_sync"`
 	Version   string    `json:"version"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type PickerInfoResponse struct {
+	Name    string `json:"name"`
+	Almacen string `json:"almacen"`
 }
 
 func DbUserToUser(id uuid.UUID, db *database.KeWusuario) *UserResponse {

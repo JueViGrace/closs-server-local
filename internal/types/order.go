@@ -1,6 +1,8 @@
 package types
 
-import "github.com/JueViGrace/closs-server-local/internal/database"
+import (
+	database "github.com/JueViGrace/closs-server-local/internal/database/mysql"
+)
 
 type OrderWithLinesResponse struct {
 	OrderResponse
