@@ -49,6 +49,9 @@ func getUserDataForReq(c *fiber.Ctx, db *data.Storage) (*types.AuthData, error) 
 	}
 
 	dbUser, err := db.MyStore.Queries.GetUserByUsername(db.MyStore.Ctx, session.Username)
+	if err != nil {
+		return nil, err
+	}
 
 	// todo: fill code
 	return &types.AuthData{
