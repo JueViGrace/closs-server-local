@@ -33,7 +33,11 @@ func (h *orderHandler) GetOrders(c *fiber.Ctx, a *types.AuthData) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	orders = types.GroupOrderByUserRow(dbOrders)
+	orders, err = types.GroupOrderByUserRow(dbOrders)
+	if err != nil {
+		res = types.RespondNotFound(nil, err.Error())
+		return c.Status(res.Status).JSON(res)
+	}
 
 	res = types.RespondOk(orders, "Success")
 	return c.Status(res.Status).JSON(res)

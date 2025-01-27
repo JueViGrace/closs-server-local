@@ -1,6 +1,7 @@
 package types
 
 import (
+	"strconv"
 	"time"
 
 	database "github.com/JueViGrace/closs-server-local/internal/database/mysql"
@@ -29,8 +30,8 @@ type OrderLineResponse struct {
 	Documento string `json:"documento"`
 	Codigo    string `json:"codigo"`
 	Almacen   string `json:"almacen"`
-	CantRef   string `json:"cantref"`
-	Cantidad  string `json:"cantidad"`
+	CantRef   int    `json:"cantref"`
+	Cantidad  int    `json:"cantidad"`
 }
 
 func mapToOrder(
@@ -63,8 +64,8 @@ func mapToOrderLine(
 	documento string,
 	codigo string,
 	almacen string,
-	cantref string,
-	cantidad string,
+	cantref int,
+	cantidad int,
 ) *OrderLineResponse {
 	return &OrderLineResponse{
 		Agencia:   agencia,
@@ -84,7 +85,7 @@ func MapToOrderWithLines(head *OrderResponse, lines []OrderLineResponse) *OrderW
 	}
 }
 
-func GroupOrderByUserRow(rows []database.GetOrdersByUserRow) []OrderWithLinesResponse {
+func GroupOrderByUserRow(rows []database.GetOrdersByUserRow) ([]OrderWithLinesResponse, error) {
 	resp := make([]OrderWithLinesResponse, 0)
 	group := make(map[OrderResponse][]OrderLineResponse)
 	ord := new(OrderResponse)
@@ -98,14 +99,19 @@ func GroupOrderByUserRow(rows []database.GetOrdersByUserRow) []OrderWithLinesRes
 			ord = mapGetOrdersByUserRowToOrder(&row)
 		}
 
-		group[*ord] = append(group[*ord], *mapGetOrdersByUserRowToOrderLine(&row))
+		line, err := mapGetOrdersByUserRowToOrderLine(&row)
+		if err != nil {
+			return nil, err
+		}
+
+		group[*ord] = append(group[*ord], *line)
 	}
 
 	for key, value := range group {
 		resp = append(resp, *MapToOrderWithLines(&key, value))
 	}
 
-	return resp
+	return resp, nil
 }
 
 func mapGetOrdersByUserRowToOrder(row *database.GetOrdersByUserRow) *OrderResponse {
@@ -122,78 +128,23 @@ func mapGetOrdersByUserRowToOrder(row *database.GetOrdersByUserRow) *OrderRespon
 	)
 }
 
-func mapGetOrdersByUserRowToOrderLine(row *database.GetOrdersByUserRow) *OrderLineResponse {
+func mapGetOrdersByUserRowToOrderLine(row *database.GetOrdersByUserRow) (*OrderLineResponse, error) {
+	cantRef, err := strconv.ParseFloat(row.Cantref.String, 0)
+	if err != nil {
+		return nil, err
+	}
+	cantidad, err := strconv.ParseFloat(row.Cantidad.String, 0)
+	if err != nil {
+		return nil, err
+	}
+
 	return mapToOrderLine(
 		row.Agencia,
 		row.Tipodoc,
 		row.Documento,
 		row.Codigo.String,
 		row.Almacen,
-		row.Cantref.String,
-		row.Cantidad.String,
-	)
+		int(cantRef),
+		int(cantidad),
+	), nil
 }
-
-// func GroupOrderWithLinesRow(rows []database.GetOrdersWithLinesRow) []OrderWithLinesResponse {
-// 	orders := make([]OrderWithLinesResponse, 0)
-// 	group := make(map[OrderResponse][]OrderLineResponse)
-// 	ord := new(OrderResponse)
-//
-// 	for _, row := range rows {
-// 		if ord == nil {
-// 			ord = mapGetOrdersRowToOrder(&row)
-// 		}
-//
-// 		if ord.KtiNdoc != row.KtiNdoc {
-// 			ord = mapGetOrdersRowToOrder(&row)
-// 		}
-//
-// 		group[*ord] = append(group[*ord], *mapGetOrdersRowToOrderLine(&row))
-// 	}
-//
-// 	for key, value := range group {
-// 		orders = append(orders, *MapToOrderWithLines(&key, value))
-// 	}
-//
-// 	return orders
-// }
-//
-// func GroupOrderWithLinesByCodeRow(rows []database.GetOrderWithLinesByCodeRow) *OrderWithLinesResponse {
-// 	order := new(OrderWithLinesResponse)
-// 	group := make(map[OrderResponse][]OrderLineResponse)
-// 	ord := new(OrderResponse)
-//
-// 	for _, row := range rows {
-// 		if ord == nil {
-// 			ord = mapGetOrdersRowByCodeToOrder(&row)
-// 		}
-//
-// 		if order.KtiNdoc != row.KtiNdoc {
-// 			ord = mapGetOrdersRowByCodeToOrder(&row)
-// 		}
-//
-// 		group[*ord] = append(group[*ord], *mapGetOrdersRowByCodeToOrderLine(&row))
-// 	}
-//
-// 	for key, value := range group {
-// 		order = MapToOrderWithLines(&key, value)
-// 	}
-//
-// 	return order
-// }
-//
-// func mapGetOrdersRowToOrder(row *database.GetOrdersWithLinesRow) *OrderResponse {
-// 	return mapToOrder()
-// }
-//
-// func mapGetOrdersRowToOrderLine(row *database.GetOrdersWithLinesRow) *OrderLineResponse {
-// 	return mapToOrderLine()
-// }
-//
-// func mapGetOrdersRowByCodeToOrder(row *database.GetOrderWithLinesByCodeRow) *OrderResponse {
-// 	return mapToOrder()
-// }
-//
-// func mapGetOrdersRowByCodeToOrderLine(row *database.GetOrderWithLinesByCodeRow) *OrderLineResponse {
-// 	return mapToOrderLine()
-// }

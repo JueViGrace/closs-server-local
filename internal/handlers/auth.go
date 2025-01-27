@@ -103,6 +103,7 @@ func (h *authHandler) SignIn(c *fiber.Ctx) error {
 	return c.Status(res.Status).JSON(res)
 }
 
+// todo: refresh logic may be done another way
 func (h *authHandler) Refresh(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
 	r := new(types.RefreshRequest)
