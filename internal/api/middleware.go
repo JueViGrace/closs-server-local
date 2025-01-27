@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -71,7 +70,7 @@ func extractJWTFromHeader(c *fiber.Ctx, expired func(uuid.UUID)) (*types.JwtData
 	tokenString := strings.Split(header, " ")[1]
 	token, err := util.ValidateJWT(tokenString)
 	if err != nil {
-		return nil, fmt.Errorf("permission denied, cause: %s", err.Error())
+		return nil, errors.New("permission denied")
 	}
 
 	if !token.Valid {

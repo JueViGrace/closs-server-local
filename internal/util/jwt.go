@@ -30,6 +30,7 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 
+// use different secrets for each token?
 func CreateAccessToken(id, username, code string) (string, error) {
 	return createJWT(id, username, code, accessExpiration)
 }
