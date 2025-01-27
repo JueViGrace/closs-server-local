@@ -8,9 +8,7 @@ import (
 
 type OrderHandler interface {
 	GetOrders(c *fiber.Ctx, a *types.AuthData) error
-	GetOrdersWithLines(c *fiber.Ctx, a *types.AuthData) error
 	GetOrderByCode(c *fiber.Ctx, a *types.AuthData) error
-	GetOrderByCodeWithLines(c *fiber.Ctx, a *types.AuthData) error
 }
 
 type orderHandler struct {
@@ -26,17 +24,21 @@ func NewOrderHandler(db *data.Storage, v *types.XValidator) OrderHandler {
 }
 
 func (h *orderHandler) GetOrders(c *fiber.Ctx, a *types.AuthData) error {
-	return nil
-}
+	res := new(types.APIResponse)
+	orders := make([]types.OrderWithLinesResponse, 0)
 
-func (h *orderHandler) GetOrdersWithLines(c *fiber.Ctx, a *types.AuthData) error {
-	return nil
+	dbOrders, err := h.db.MyStore.Queries.GetOrdersByUser(h.db.MyStore.Ctx, a.Username)
+	if err != nil {
+		res = types.RespondNotFound(nil, err.Error())
+		return c.Status(res.Status).JSON(res)
+	}
+
+	orders = types.GroupOrderByUserRow(dbOrders)
+
+	res = types.RespondOk(orders, "Success")
+	return c.Status(res.Status).JSON(res)
 }
 
 func (h *orderHandler) GetOrderByCode(c *fiber.Ctx, a *types.AuthData) error {
-	return nil
-}
-
-func (h *orderHandler) GetOrderByCodeWithLines(c *fiber.Ctx, a *types.AuthData) error {
 	return nil
 }

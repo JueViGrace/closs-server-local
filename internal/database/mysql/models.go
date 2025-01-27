@@ -263,6 +263,45 @@ type KeWusuario struct {
 	Fechamodifi time.Time
 }
 
+type KeolOpti2 struct {
+	Opti2Agencia     string
+	Opti2Tipodoc     string
+	Opti2Documento   string
+	Opti2Condcred    string
+	Opti2Tipodocsal  string
+	Opti2Pedstatus   string
+	Opti2Cond        string
+	Opti2Agesal      string
+	Opti2Ubica       string
+	Opti2Totbultos   string
+	Opti2Totpeso     string
+	Opti2Fchyhora    time.Time
+	Opti2Usuario     string
+	Opti2Totexento   string
+	Opti2Totneto     string
+	Opti2Totiva      string
+	Opti2Totdivisas  string
+	Opti2Tasa        string
+	Opti2Agenfac     string
+	Opti2Tdocfac     string
+	Opti2Docufac     string
+	Opti2Agendesp    string
+	Opti2Docudesp    string
+	Opti2IDEmpresa   string
+	Opti2Bstotiva    string
+	Opti2Bsflete     string
+	Opti2Nbsflete    string
+	Opti2Ndolflete   string
+	KtiNegesp        string
+	Opti2Dtotdescuen string
+	Opti2Fchentrega  time.Time
+	Opti2Geoloc      string
+	Opti2Latitud     string
+	Opti2Longitud    string
+	Opti2Notasent    sql.NullString
+	Dolarflete       int32
+}
+
 type Opermv struct {
 	IDEmpresa       string
 	Agencia         string
@@ -531,4 +570,8 @@ type Operti struct {
 	Monto2Igtf6687       string
 	TodoIgtf6687         int8
 	Todo2Igtf6687        int8
+	Upickup              string
+	Uverif               string
+	Uembala              string
+	Idcarrito            string
 }
