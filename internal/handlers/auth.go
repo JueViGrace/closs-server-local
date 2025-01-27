@@ -92,6 +92,7 @@ func (h *authHandler) SignIn(c *fiber.Ctx) error {
 		UserId:       user.ID,
 		Username:     user.Username,
 		RefreshToken: token.RefreshToken,
+		AccessToken:  token.AccessToken,
 	})
 	if err != nil {
 		res = types.RespondNotFound(nil, err.Error())
@@ -145,6 +146,7 @@ func (h *authHandler) Refresh(c *fiber.Ctx, a *types.AuthData) error {
 		UserId:       user.ID,
 		Username:     dbUser.Username,
 		RefreshToken: newTokens.RefreshToken,
+		AccessToken:  newTokens.AccessToken,
 	})
 	if err != nil {
 		res = types.RespondBadRequest(nil, err.Error())

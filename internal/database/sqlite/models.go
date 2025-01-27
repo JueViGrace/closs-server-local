@@ -5,12 +5,8 @@
 package database
 
 type ClossSession struct {
-	Token    string
-	Username string
-	UserID   string
-}
-
-type ClossUser struct {
-	ID       string
-	Username string
+	RefreshToken string
+	AccessToken  string
+	Username     string
+	UserID       string
 }
