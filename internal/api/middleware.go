@@ -54,7 +54,7 @@ func getUserDataForReq(c *fiber.Ctx, db *data.Storage) (*types.AuthData, error) 
 
 	// todo: fill code
 	return &types.AuthData{
-		UserId:   jwt.Claims.UserId,
+		UserId:   session.UserId,
 		Username: dbUser.Username,
 		Code:     "",
 	}, nil

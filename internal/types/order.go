@@ -13,15 +13,16 @@ type OrderWithLinesResponse struct {
 }
 
 type OrderResponse struct {
-	Agencia    string    `json:"agencia"`
-	TipoDoc    string    `json:"tipodoc"`
-	Documento  string    `json:"documento"`
-	CodCliente string    `json:"codcliente"`
-	NombreCli  string    `json:"nombrecli"`
-	Emision    time.Time `json:"emision"`
-	Upickup    string    `json:"upickup"`
-	IdCarrito  string    `json:"idcarrito"`
-	Almacen    string    `json:"almacen"`
+	Agencia     string    `json:"agencia"`
+	TipoDoc     string    `json:"tipodoc"`
+	Documento   string    `json:"documento"`
+	CodCliente  string    `json:"codcliente"`
+	NombreCli   string    `json:"nombrecli"`
+	Emision     time.Time `json:"emision"`
+	Upickup     string    `json:"upickup"`
+	IdCarrito   string    `json:"idcarrito"`
+	Almacen     string    `json:"almacen"`
+	KePedStatus string    `json:"ke_pedstatus"`
 }
 
 type OrderLineResponse struct {
@@ -29,6 +30,7 @@ type OrderLineResponse struct {
 	TipoDoc   string `json:"tipodoc"`
 	Documento string `json:"documento"`
 	Codigo    string `json:"codigo"`
+	Nombre    string `json:"nombre"`
 	Almacen   string `json:"almacen"`
 	CantRef   int    `json:"cantref"`
 	Cantidad  int    `json:"cantidad"`
@@ -44,17 +46,19 @@ func mapToOrder(
 	upickup string,
 	idcarrito string,
 	almacen string,
+	kePedstatus string,
 ) *OrderResponse {
 	return &OrderResponse{
-		Agencia:    agencia,
-		TipoDoc:    tipodoc,
-		Documento:  documento,
-		CodCliente: codcliente,
-		NombreCli:  nombrecli,
-		Emision:    emision,
-		Upickup:    upickup,
-		IdCarrito:  idcarrito,
-		Almacen:    almacen,
+		Agencia:     agencia,
+		TipoDoc:     tipodoc,
+		Documento:   documento,
+		CodCliente:  codcliente,
+		NombreCli:   nombrecli,
+		Emision:     emision,
+		Upickup:     upickup,
+		IdCarrito:   idcarrito,
+		Almacen:     almacen,
+		KePedStatus: kePedstatus,
 	}
 }
 
@@ -63,6 +67,7 @@ func mapToOrderLine(
 	tipodoc string,
 	documento string,
 	codigo string,
+	nombre string,
 	almacen string,
 	cantref int,
 	cantidad int,
@@ -72,6 +77,7 @@ func mapToOrderLine(
 		TipoDoc:   tipodoc,
 		Documento: documento,
 		Codigo:    codigo,
+		Nombre:    nombre,
 		Almacen:   almacen,
 		CantRef:   cantref,
 		Cantidad:  cantidad,
@@ -125,6 +131,7 @@ func mapGetOrdersByUserRowToOrder(row *database.GetOrdersByUserRow) *OrderRespon
 		row.Upickup,
 		row.Idcarrito,
 		row.Almacen,
+		row.KePedstatus,
 	)
 }
 
@@ -143,6 +150,7 @@ func mapGetOrdersByUserRowToOrderLine(row *database.GetOrdersByUserRow) (*OrderL
 		row.Tipodoc,
 		row.Documento,
 		row.Codigo.String,
+		row.Nombre.String,
 		row.Almacen,
 		int(cantRef),
 		int(cantidad),
