@@ -302,6 +302,32 @@ type KeolOpti2 struct {
 	Dolarflete       int32
 }
 
+type Kerutazona struct {
+	RutaCodigo string
+	Codigo     string
+	Subcodigo  string
+}
+
+type Kerutum struct {
+	RutaCodigo    string
+	RutaDescrip   string
+	RutaPrcflete  string
+	RutaCodart    string
+	CedChofer     string
+	VehDescrip    string
+	VehPlaca      string
+	VehColor      string
+	VehPoliza     string
+	MontoMin      string
+	MontoMax      string
+	Diasadic      float64
+	RutaInactiva  string
+	RutaParme     string
+	RutaPrcsubsi  string
+	MontoMinsubsi string
+	MontoMaxsubsi string
+}
+
 type Opermv struct {
 	IDEmpresa       string
 	Agencia         string

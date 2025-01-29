@@ -509,6 +509,35 @@ CREATE TABLE IF NOT EXISTS opermv (
   KEY opmvcodhijo2 (codhijo,codigo)
 );
 
+CREATE TABLE keruta (
+  ruta_codigo varchar(3) NOT NULL DEFAULT '',
+  ruta_descrip varchar(150) NOT NULL DEFAULT '',
+  ruta_prcflete decimal(20,7) NOT NULL DEFAULT '0.0000000',
+  ruta_codart varchar(25) NOT NULL DEFAULT '',
+  ced_chofer varchar(20) NOT NULL DEFAULT '',
+  veh_descrip varchar(100) NOT NULL DEFAULT '',
+  veh_placa varchar(50) NOT NULL DEFAULT '',
+  veh_color varchar(50) NOT NULL DEFAULT '',
+  veh_poliza varchar(50) NOT NULL DEFAULT '',
+  monto_min decimal(20,7) NOT NULL DEFAULT '0.0000000',
+  monto_max decimal(20,7) NOT NULL DEFAULT '0.0000000',
+  diasadic double(3,0) NOT NULL DEFAULT '0',
+  ruta_inactiva varchar(1) NOT NULL DEFAULT ' ',
+  ruta_parme char(1) NOT NULL DEFAULT '',
+  ruta_prcsubsi decimal(20,7) NOT NULL DEFAULT '0.0000000',
+  monto_minsubsi decimal(20,7) NOT NULL DEFAULT '0.0000000',
+  monto_maxsubsi decimal(20,7) NOT NULL DEFAULT '0.0000000',
+  KEY ruta (ruta_codigo)
+);
+
+CREATE TABLE kerutazonas (
+  ruta_codigo varchar(3) NOT NULL DEFAULT '',
+  codigo varchar(6) NOT NULL DEFAULT '',
+  subcodigo varchar(6) NOT NULL DEFAULT '',
+  KEY ruta_codigo (ruta_codigo,codigo,subcodigo),
+  KEY Codigo_Subcodigo (codigo,subcodigo)
+);
+
 CREATE TABLE keol_opti2 (
   opti2_agencia varchar(3) NOT NULL DEFAULT '',
   opti2_tipodoc varchar(3) NOT NULL DEFAULT '',

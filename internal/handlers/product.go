@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/JueViGrace/closs-server-local/internal/data"
 	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/gofiber/fiber/v2"
@@ -9,6 +11,7 @@ import (
 type ProductHandler interface {
 	GetProducts(c *fiber.Ctx) error
 	GetProductByCode(c *fiber.Ctx) error
+	GetProductImageByCode(c *fiber.Ctx) error
 }
 
 type productHandler struct {
@@ -51,4 +54,10 @@ func (h *productHandler) GetProductByCode(c *fiber.Ctx) error {
 
 	res = types.RespondOk(product, "Success")
 	return c.Status(res.Status).JSON(res)
+}
+
+func (h *productHandler) GetProductImageByCode(c *fiber.Ctx) error {
+	file := fmt.Sprintf("C:\\premium\\Administrativo9x\\000001\\Images\\%s.jpg", c.Params("code"))
+
+	return c.Status(fiber.StatusOK).SendFile(file)
 }

@@ -1,10 +1,13 @@
 package types
 
 import (
-	"strconv"
+	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	database "github.com/JueViGrace/closs-server-local/internal/database/mysql"
+	"github.com/JueViGrace/closs-server-local/internal/util"
 )
 
 type OrderWithLinesResponse struct {
@@ -13,27 +16,28 @@ type OrderWithLinesResponse struct {
 }
 
 type OrderResponse struct {
-	Agencia     string    `json:"agencia"`
-	TipoDoc     string    `json:"tipodoc"`
-	Documento   string    `json:"documento"`
-	CodCliente  string    `json:"codcliente"`
-	NombreCli   string    `json:"nombrecli"`
-	Emision     time.Time `json:"emision"`
-	Upickup     string    `json:"upickup"`
-	IdCarrito   string    `json:"idcarrito"`
-	Almacen     string    `json:"almacen"`
-	KePedStatus string    `json:"ke_pedstatus"`
+	Agencia     string `json:"agencia"`
+	TipoDoc     string `json:"tipodoc"`
+	Documento   string `json:"documento"`
+	CodCliente  string `json:"codcliente"`
+	NombreCli   string `json:"nombrecli"`
+	Emision     string `json:"emision"`
+	Upickup     string `json:"upickup"`
+	IdCarrito   string `json:"idcarrito"`
+	Almacen     string `json:"almacen"`
+	RutaCodigo  string `json:"ruta_codigo"`
+	RutaDescrip string `json:"ruta_descrip"`
+	KePedStatus string `json:"ke_pedstatus"`
 }
 
 type OrderLineResponse struct {
-	Agencia   string `json:"agencia"`
-	TipoDoc   string `json:"tipodoc"`
-	Documento string `json:"documento"`
-	Codigo    string `json:"codigo"`
-	Nombre    string `json:"nombre"`
-	Almacen   string `json:"almacen"`
-	CantRef   int    `json:"cantref"`
-	Cantidad  int    `json:"cantidad"`
+	Agencia   string          `json:"agencia"`
+	TipoDoc   string          `json:"tipodoc"`
+	Documento string          `json:"documento"`
+	Almacen   string          `json:"almacen"`
+	Product   ProductResponse `json:"product"`
+	CantRef   int             `json:"cantref"`
+	Cantidad  int             `json:"cantidad"`
 }
 
 func mapToOrder(
@@ -46,6 +50,8 @@ func mapToOrder(
 	upickup string,
 	idcarrito string,
 	almacen string,
+	rutaCodigo string,
+	rutaDescrip string,
 	kePedstatus string,
 ) *OrderResponse {
 	return &OrderResponse{
@@ -54,10 +60,12 @@ func mapToOrder(
 		Documento:   documento,
 		CodCliente:  codcliente,
 		NombreCli:   nombrecli,
-		Emision:     emision,
+		Emision:     util.FormatDateForResponse(emision),
 		Upickup:     upickup,
 		IdCarrito:   idcarrito,
 		Almacen:     almacen,
+		RutaCodigo:  rutaCodigo,
+		RutaDescrip: rutaDescrip,
 		KePedStatus: kePedstatus,
 	}
 }
@@ -66,9 +74,8 @@ func mapToOrderLine(
 	agencia string,
 	tipodoc string,
 	documento string,
-	codigo string,
-	nombre string,
 	almacen string,
+	product *ProductResponse,
 	cantref int,
 	cantidad int,
 ) *OrderLineResponse {
@@ -76,9 +83,8 @@ func mapToOrderLine(
 		Agencia:   agencia,
 		TipoDoc:   tipodoc,
 		Documento: documento,
-		Codigo:    codigo,
-		Nombre:    nombre,
 		Almacen:   almacen,
+		Product:   *product,
 		CantRef:   cantref,
 		Cantidad:  cantidad,
 	}
@@ -105,10 +111,7 @@ func GroupOrderByUserRow(rows []database.GetOrdersByUserRow) ([]OrderWithLinesRe
 			ord = mapGetOrdersByUserRowToOrder(&row)
 		}
 
-		line, err := mapGetOrdersByUserRowToOrderLine(&row)
-		if err != nil {
-			return nil, err
-		}
+		line := mapGetOrdersByUserRowToOrderLine(&row)
 
 		group[*ord] = append(group[*ord], *line)
 	}
@@ -131,28 +134,33 @@ func mapGetOrdersByUserRowToOrder(row *database.GetOrdersByUserRow) *OrderRespon
 		row.Upickup,
 		row.Idcarrito,
 		row.Almacen,
+		row.RutaCodigo.String,
+		strings.TrimSpace(row.RutaDescrip.String),
 		row.KePedstatus,
 	)
 }
 
-func mapGetOrdersByUserRowToOrderLine(row *database.GetOrdersByUserRow) (*OrderLineResponse, error) {
-	cantRef, err := strconv.ParseFloat(row.Cantref.String, 0)
-	if err != nil {
-		return nil, err
-	}
-	cantidad, err := strconv.ParseFloat(row.Cantidad.String, 0)
-	if err != nil {
-		return nil, err
+func mapGetOrdersByUserRowToOrderLine(row *database.GetOrdersByUserRow) *OrderLineResponse {
+	cantRef := util.StringToFloat(row.Cantref.String, 0)
+	cantidad := util.StringToFloat(row.Cantidad.String, 0)
+
+	product := &ProductResponse{
+		Nombre:     strings.TrimSpace(row.Nombre.String),
+		Codigo:     strings.TrimSpace(row.Codigo.String),
+		Referencia: strings.TrimSpace(row.Referencia.String),
+		Marca:      strings.TrimSpace(row.Marca.String),
+		Unidad:     strings.TrimSpace(row.Unidad.String),
+		Image:      fmt.Sprintf("http://%s:%v/api/products/%s/image", os.Getenv("HOST"), os.Getenv("PORT"), row.Codigo.String),
+		CreatedAt:  util.FormatDateForResponse(row.Fechacrea.Time),
 	}
 
 	return mapToOrderLine(
-		row.Agencia,
-		row.Tipodoc,
-		row.Documento,
-		row.Codigo.String,
-		row.Nombre.String,
-		row.Almacen,
+		row.Agencia_2.String,
+		row.Tipodoc_2.String,
+		row.Documento_2.String,
+		row.Almacen_2.String,
+		product,
 		int(cantRef),
 		int(cantidad),
-	), nil
+	)
 }

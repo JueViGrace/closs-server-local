@@ -9,6 +9,7 @@ func (a *api) ProductRoutes(api fiber.Router) {
 	group := api.Group("/products")
 	handler := handlers.NewProductHandler(a.db, a.validator)
 
-	group.Get("/", a.sessionMiddleware, handler.GetProducts)
-	group.Get("/:code", a.sessionMiddleware, handler.GetProductByCode)
+	group.Get("/", handler.GetProducts)
+	group.Get("/:code", handler.GetProductByCode)
+	group.Get("/:code/image", handler.GetProductImageByCode)
 }
