@@ -40,7 +40,7 @@ func newMySQLStorage() *MySQLStore {
 	}
 
 	if err := conn.Ping(); err != nil {
-		log.Fatal("Ping to the database failed ", err)
+		log.Fatal("Ping to the mysql database failed ", err)
 	}
 
 	myQueries = database.New(conn)

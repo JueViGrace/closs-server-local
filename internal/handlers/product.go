@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/JueViGrace/closs-server-local/internal/data"
 	"github.com/JueViGrace/closs-server-local/internal/types"
@@ -57,7 +58,7 @@ func (h *productHandler) GetProductByCode(c *fiber.Ctx) error {
 }
 
 func (h *productHandler) GetProductImageByCode(c *fiber.Ctx) error {
-	file := fmt.Sprintf("C:\\premium\\Administrativo9x\\000001\\Images\\%s.jpg", c.Params("code"))
+	file := fmt.Sprintf("%s\\%s.jpg", os.Getenv("IMGS_DIR"), c.Params("code"))
 
 	return c.Status(fiber.StatusOK).SendFile(file)
 }

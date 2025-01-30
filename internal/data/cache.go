@@ -43,7 +43,7 @@ func newCacheStorage() CacheStore {
 	}
 
 	if err := conn.Ping(); err != nil {
-		log.Fatal("Ping to the database failed ", err)
+		log.Fatal("Ping to the sqlite database failed ", err)
 	}
 
 	cacheQueries = database.New(conn)
