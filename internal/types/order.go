@@ -97,7 +97,7 @@ func MapToOrderWithLines(head *OrderResponse, lines []OrderLineResponse) *OrderW
 	}
 }
 
-func GroupOrderByUserRow(rows []database.GetOrdersByUserRow) ([]OrderWithLinesResponse, error) {
+func GroupOrdersByUserRow(rows []database.GetOrdersByUserRow) ([]OrderWithLinesResponse, error) {
 	resp := make([]OrderWithLinesResponse, 0)
 	group := make(map[OrderResponse][]OrderLineResponse)
 	ord := new(OrderResponse)
@@ -150,7 +150,75 @@ func mapGetOrdersByUserRowToOrderLine(row *database.GetOrdersByUserRow) *OrderLi
 		Referencia: strings.TrimSpace(row.Referencia.String),
 		Marca:      strings.TrimSpace(row.Marca.String),
 		Unidad:     strings.TrimSpace(row.Unidad.String),
-		Image:      fmt.Sprintf("http://%s:%v/api/products/%s/image", os.Getenv("HOST"), os.Getenv("PORT"), row.Codigo.String),
+		Image:      fmt.Sprintf("%s/api/products/%s/image", os.Getenv("BASE_URL"), row.Codigo.String),
+		CreatedAt:  util.FormatDateForResponse(row.Fechacrea.Time),
+	}
+
+	return mapToOrderLine(
+		row.Agencia_2.String,
+		row.Tipodoc_2.String,
+		row.Documento_2.String,
+		row.Almacen_2.String,
+		product,
+		int(cantRef),
+		int(cantidad),
+	)
+}
+
+func GroupOrderByCodeRow(rows []database.GetOrderByCodeRow) (*OrderWithLinesResponse, error) {
+	resp := new(OrderWithLinesResponse)
+	group := make(map[OrderResponse][]OrderLineResponse)
+	ord := new(OrderResponse)
+
+	for _, row := range rows {
+		if ord == nil {
+			ord = mapGetOrderByCodeRowToOrder(&row)
+		}
+
+		if ord.Documento != row.Documento {
+			ord = mapGetOrderByCodeRowToOrder(&row)
+		}
+
+		line := mapGetOrderByCodeRowToOrderLine(&row)
+
+		group[*ord] = append(group[*ord], *line)
+	}
+
+	for key, value := range group {
+		resp = MapToOrderWithLines(&key, value)
+	}
+
+	return resp, nil
+}
+
+func mapGetOrderByCodeRowToOrder(row *database.GetOrderByCodeRow) *OrderResponse {
+	return mapToOrder(
+		row.Agencia,
+		row.Tipodoc,
+		row.Documento,
+		row.Codcliente,
+		row.Nombrecli,
+		row.Emision,
+		row.Upickup,
+		row.Idcarrito,
+		row.Almacen,
+		row.RutaCodigo.String,
+		strings.TrimSpace(row.RutaDescrip.String),
+		row.KePedstatus,
+	)
+}
+
+func mapGetOrderByCodeRowToOrderLine(row *database.GetOrderByCodeRow) *OrderLineResponse {
+	cantRef := util.StringToFloat(row.Cantref.String, 0)
+	cantidad := util.StringToFloat(row.Cantidad.String, 0)
+
+	product := &ProductResponse{
+		Nombre:     strings.TrimSpace(row.Nombre.String),
+		Codigo:     strings.TrimSpace(row.Codigo.String),
+		Referencia: strings.TrimSpace(row.Referencia.String),
+		Marca:      strings.TrimSpace(row.Marca.String),
+		Unidad:     strings.TrimSpace(row.Unidad.String),
+		Image:      fmt.Sprintf("%s/api/products/%s/image", os.Getenv("BASE_URL"), row.Codigo.String),
 		CreatedAt:  util.FormatDateForResponse(row.Fechacrea.Time),
 	}
 

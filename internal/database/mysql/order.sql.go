@@ -11,6 +11,139 @@ import (
 	"time"
 )
 
+const getOrderByCode = `-- name: GetOrderByCode :many
+select
+    operti.agencia,
+    operti.tipodoc,
+    operti.documento,
+    operti.nombrecli,
+    operti.codcliente,
+    operti.emision,
+    operti.upickup,
+    operti.idcarrito,
+    operti.almacen,
+    operti.ke_pedstatus,
+    opermv.agencia,
+    opermv.tipodoc,
+    opermv.documento,
+    opermv.codigo,
+    opermv.nombre,
+    opermv.almacen,
+    opermv.cantref,
+    opermv.cantidad,
+    kerutazonas.ruta_codigo,
+    keruta.ruta_descrip,
+    articulo.referencia,
+    articulo.marca,
+    articulo.unidad,
+    articulo.rutafoto,
+    articulo.fechacrea
+from operti
+left join
+    opermv
+    on operti.tipodoc = opermv.tipodoc
+    and operti.agencia = opermv.agencia
+    and operti.documento = opermv.documento
+left join
+    keol_opti2
+    on operti.tipodoc = keol_opti2.opti2_tipodoc
+    and operti.agencia = keol_opti2.opti2_agencia
+    and operti.documento = keol_opti2.opti2_documento
+left join articulo on opermv.codigo = articulo.codigo
+left join
+    kerutazonas
+    on operti.sector = kerutazonas.codigo
+    and operti.subcodigo = kerutazonas.subcodigo
+left join keruta on kerutazonas.ruta_codigo = keruta.ruta_codigo
+where
+    operti.tipodoc = 'PED'
+    and operti.upickup = ?
+    and operti.idcarrito = ''
+    and operti.documento = ?
+`
+
+type GetOrderByCodeParams struct {
+	Upickup   string
+	Documento string
+}
+
+type GetOrderByCodeRow struct {
+	Agencia     string
+	Tipodoc     string
+	Documento   string
+	Nombrecli   string
+	Codcliente  string
+	Emision     time.Time
+	Upickup     string
+	Idcarrito   string
+	Almacen     string
+	KePedstatus string
+	Agencia_2   sql.NullString
+	Tipodoc_2   sql.NullString
+	Documento_2 sql.NullString
+	Codigo      sql.NullString
+	Nombre      sql.NullString
+	Almacen_2   sql.NullString
+	Cantref     sql.NullString
+	Cantidad    sql.NullString
+	RutaCodigo  sql.NullString
+	RutaDescrip sql.NullString
+	Referencia  sql.NullString
+	Marca       sql.NullString
+	Unidad      sql.NullString
+	Rutafoto    sql.NullString
+	Fechacrea   sql.NullTime
+}
+
+func (q *Queries) GetOrderByCode(ctx context.Context, arg GetOrderByCodeParams) ([]GetOrderByCodeRow, error) {
+	rows, err := q.db.QueryContext(ctx, getOrderByCode, arg.Upickup, arg.Documento)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOrderByCodeRow
+	for rows.Next() {
+		var i GetOrderByCodeRow
+		if err := rows.Scan(
+			&i.Agencia,
+			&i.Tipodoc,
+			&i.Documento,
+			&i.Nombrecli,
+			&i.Codcliente,
+			&i.Emision,
+			&i.Upickup,
+			&i.Idcarrito,
+			&i.Almacen,
+			&i.KePedstatus,
+			&i.Agencia_2,
+			&i.Tipodoc_2,
+			&i.Documento_2,
+			&i.Codigo,
+			&i.Nombre,
+			&i.Almacen_2,
+			&i.Cantref,
+			&i.Cantidad,
+			&i.RutaCodigo,
+			&i.RutaDescrip,
+			&i.Referencia,
+			&i.Marca,
+			&i.Unidad,
+			&i.Rutafoto,
+			&i.Fechacrea,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOrdersByUser = `-- name: GetOrdersByUser :many
 select
     operti.agencia,
@@ -56,6 +189,7 @@ left join
     and operti.subcodigo = kerutazonas.subcodigo
 left join keruta on kerutazonas.ruta_codigo = keruta.ruta_codigo
 where operti.tipodoc = 'PED' and operti.upickup = ? and idcarrito = ''
+order by operti.emision asc, operti.documento asc, operti.almacen asc
 `
 
 type GetOrdersByUserRow struct {

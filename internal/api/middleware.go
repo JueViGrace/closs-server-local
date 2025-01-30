@@ -9,13 +9,14 @@ import (
 	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/JueViGrace/closs-server-local/internal/util"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 )
 
 func (a *api) sessionMiddleware(c *fiber.Ctx) error {
 	_, err := getUserDataForReq(c, a.db)
 	if err != nil {
-		res := types.RespondUnauthorized(nil, "you are not authorized to access this endpoint")
+		res := types.RespondUnauthorized(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
 
@@ -26,7 +27,7 @@ func (a *api) authenticatedHandler(handler types.AuthDataHandler) fiber.Handler 
 	return func(c *fiber.Ctx) error {
 		data, err := getUserDataForReq(c, a.db)
 		if err != nil {
-			res := types.RespondUnauthorized(nil, "you are not authorized to access this endpoint")
+			res := types.RespondUnauthorized(nil, err.Error())
 			return c.Status(res.Status).JSON(res)
 		}
 
@@ -70,29 +71,35 @@ func extractJWTFromHeader(c *fiber.Ctx, expired func(uuid.UUID)) (*types.JwtData
 	tokenString := strings.Split(header, " ")[1]
 	token, err := util.ValidateJWT(tokenString)
 	if err != nil {
+		log.Info(err.Error())
 		return nil, errors.New("permission denied")
 	}
 
 	if !token.Valid {
+		log.Info("invalid token")
 		return nil, errors.New("permission denied")
 	}
 
 	claims, ok := token.Claims.(*util.JWTClaims)
 	if !ok {
+		log.Info("invalid claims")
 		return nil, errors.New("permission denied")
 	}
 
-	if claims.ExpiresAt.Time.UTC().Unix() < time.Now().UTC().Unix() {
+	if claims.ExpiresAt.Time.Unix() < time.Now().Unix() {
+		log.Info("expired")
 		expired(claims.UserId)
 		return nil, errors.New("permision denied")
 	}
 
 	if len(claims.Audience) > 1 || claims.
 		Audience[0] != "api" {
+		log.Infof("bad audience: %v", claims.Audience)
 		return nil, errors.New("permision denied")
 	}
 
 	if claims.Issuer != util.Issuer {
+		log.Infof("bad issuer: %v", claims.Issuer)
 		return nil, errors.New("permision denied")
 	}
 
