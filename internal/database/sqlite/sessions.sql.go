@@ -50,6 +50,23 @@ func (q *Queries) DeleteSessionById(ctx context.Context, userID string) error {
 	return err
 }
 
+const deleteSessionByToken = `-- name: DeleteSessionByToken :exec
+;
+
+delete from closs_session
+where refresh_token = ? or access_token = ?
+`
+
+type DeleteSessionByTokenParams struct {
+	RefreshToken string
+	AccessToken  string
+}
+
+func (q *Queries) DeleteSessionByToken(ctx context.Context, arg DeleteSessionByTokenParams) error {
+	_, err := q.db.ExecContext(ctx, deleteSessionByToken, arg.RefreshToken, arg.AccessToken)
+	return err
+}
+
 const getSessionById = `-- name: GetSessionById :one
 select refresh_token, access_token, username, user_id
 from closs_session

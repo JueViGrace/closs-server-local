@@ -17,7 +17,7 @@ type AuthData struct {
 
 type JwtData struct {
 	Token  *jwt.Token
-	Claims util.JWTClaims
+	Claims *util.JWTClaims
 }
 
 type AuthResponse struct {

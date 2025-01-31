@@ -32,3 +32,8 @@ delete from closs_session
 where user_id = ?
 ;
 
+-- name: DeleteSessionByToken :exec
+delete from closs_session
+where refresh_token = ? or access_token = ?
+;
+

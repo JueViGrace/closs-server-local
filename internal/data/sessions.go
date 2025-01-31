@@ -14,6 +14,7 @@ type SessionStorage interface {
 	CreateSession(r *types.Session) (err error)
 	UpdateSession(r *types.Session) (err error)
 	DeleteSession(id uuid.UUID) (err error)
+	DeleteSessionByToken(token string) (err error)
 }
 
 func (s *cacheStore) SessionStorage() SessionStorage {
@@ -99,6 +100,17 @@ func (s *sessionStorage) UpdateSession(r *types.Session) error {
 
 func (s *sessionStorage) DeleteSession(id uuid.UUID) error {
 	err := s.db.DeleteSessionById(s.ctx, id.String())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *sessionStorage) DeleteSessionByToken(token string) error {
+	err := s.db.DeleteSessionByToken(s.ctx, database.DeleteSessionByTokenParams{
+		RefreshToken: token,
+		AccessToken:  token,
+	})
 	if err != nil {
 		return err
 	}

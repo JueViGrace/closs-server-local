@@ -9,16 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-var (
-	jwtSecret string           = os.Getenv("JWT_SECRET")
-	Issuer    string           = "ClossServer"
-	Audience  jwt.ClaimStrings = jwt.ClaimStrings{
-		"api",
-	}
-	accessExpiration  time.Time = time.Now().Add(1 * time.Hour)
-	refreshExpiration time.Time = time.Now().Add(24 * time.Hour)
-)
-
 type userClaims struct {
 	UserId   uuid.UUID `json:"userId"`
 	Username string    `json:"username"`
@@ -30,12 +20,25 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 
+var (
+	jwtSecret string           = os.Getenv("JWT_SECRET")
+	Audience  jwt.ClaimStrings = jwt.ClaimStrings{
+		"api",
+	}
+)
+
+const (
+	Issuer string = "ClossServer"
+)
+
 // use different secrets for each token?
 func CreateAccessToken(id, username, code string) (string, error) {
+	var accessExpiration time.Time = time.Now().UTC().Add(1 * time.Hour)
 	return createJWT(id, username, code, accessExpiration)
 }
 
 func CreateRefreshToken(id, username, code string) (string, error) {
+	var refreshExpiration time.Time = time.Now().UTC().Add(24 * time.Hour)
 	return createJWT(id, username, code, refreshExpiration)
 }
 
@@ -58,8 +61,8 @@ func createJWT(id, username, code string, expiration time.Time) (string, error) 
 		},
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiration),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			NotBefore: jwt.NewNumericDate(time.Now()),
+			IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
+			NotBefore: jwt.NewNumericDate(time.Now().UTC()),
 			Issuer:    Issuer,
 			Subject:   username,
 			ID:        tokenId.String(),
@@ -73,9 +76,7 @@ func createJWT(id, username, code string, expiration time.Time) (string, error) 
 }
 
 func ValidateJWT(tokenString string) (*jwt.Token, error) {
-	claims := new(JWTClaims)
-
-	return jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+	return jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
