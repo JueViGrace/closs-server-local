@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/JueViGrace/closs-server-local/internal/data"
 	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
@@ -49,6 +51,15 @@ func (a *api) Init() (err error) {
 
 	a.Use(cors.New())
 	a.Use(logger.New())
+	a.Use(cache.New(
+		cache.Config{
+			Next: func(c *fiber.Ctx) bool {
+				return c.Query("noCache") == "true"
+			},
+			Expiration:   30 * time.Minute,
+			CacheControl: true,
+		},
+	))
 
 	a.RegisterRoutes()
 

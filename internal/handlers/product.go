@@ -60,5 +60,5 @@ func (h *productHandler) GetProductByCode(c *fiber.Ctx) error {
 func (h *productHandler) GetProductImageByCode(c *fiber.Ctx) error {
 	file := fmt.Sprintf("%s%s.jpg", os.Getenv("IMGS_DIR"), c.Params("code"))
 
-	return c.Status(fiber.StatusOK).SendFile(file)
+	return c.Status(fiber.StatusOK).SendFile(file, true)
 }
