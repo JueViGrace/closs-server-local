@@ -62,10 +62,10 @@ func mapToOrder(
 		NombreCli:   nombrecli,
 		Emision:     util.FormatDateForResponse(emision),
 		Upickup:     upickup,
-		IdCarrito:   idcarrito,
+		IdCarrito:   strings.TrimSpace(idcarrito),
 		Almacen:     almacen,
 		RutaCodigo:  rutaCodigo,
-		RutaDescrip: rutaDescrip,
+		RutaDescrip: strings.TrimSpace(rutaDescrip),
 		KePedStatus: kePedstatus,
 	}
 }
@@ -135,7 +135,7 @@ func mapGetOrdersByUserRowToOrder(row *database.GetOrdersByUserRow) *OrderRespon
 		row.Idcarrito,
 		row.Almacen,
 		row.RutaCodigo.String,
-		strings.TrimSpace(row.RutaDescrip.String),
+		row.RutaDescrip.String,
 		row.KePedstatus,
 	)
 }
@@ -203,7 +203,7 @@ func mapGetOrderByCodeRowToOrder(row *database.GetOrderByCodeRow) *OrderResponse
 		row.Idcarrito,
 		row.Almacen,
 		row.RutaCodigo.String,
-		strings.TrimSpace(row.RutaDescrip.String),
+		row.RutaDescrip.String,
 		row.KePedstatus,
 	)
 }
