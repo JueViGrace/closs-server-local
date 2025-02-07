@@ -16,18 +16,20 @@ type OrderWithLinesResponse struct {
 }
 
 type OrderResponse struct {
-	Agencia     string `json:"agencia"`
-	TipoDoc     string `json:"tipodoc"`
-	Documento   string `json:"documento"`
-	CodCliente  string `json:"codcliente"`
-	NombreCli   string `json:"nombrecli"`
-	Emision     string `json:"emision"`
-	Upickup     string `json:"upickup"`
-	IdCarrito   string `json:"idcarrito"`
-	Almacen     string `json:"almacen"`
-	RutaCodigo  string `json:"ruta_codigo"`
-	RutaDescrip string `json:"ruta_descrip"`
-	KePedStatus string `json:"ke_pedstatus"`
+	Agencia       string `json:"agencia"`
+	TipoDoc       string `json:"tipodoc"`
+	Documento     string `json:"documento"`
+	CodCliente    string `json:"codcliente"`
+	NombreCli     string `json:"nombrecli"`
+	Emision       string `json:"emision"`
+	Upickup       string `json:"upickup"`
+	IdCarrito     string `json:"idcarrito"`
+	PickStartedAt string `json:"pick_started_at"`
+	PickEndedAt   string `json:"pick_ended_at"`
+	Almacen       string `json:"almacen"`
+	RutaCodigo    string `json:"ruta_codigo"`
+	RutaDescrip   string `json:"ruta_descrip"`
+	KePedStatus   string `json:"ke_pedstatus"`
 }
 
 type OrderLineResponse struct {
@@ -49,24 +51,28 @@ func mapToOrder(
 	emision time.Time,
 	upickup string,
 	idcarrito string,
+	pickStartedAt,
+	pickEndedAt,
 	almacen string,
 	rutaCodigo string,
 	rutaDescrip string,
 	kePedstatus string,
 ) *OrderResponse {
 	return &OrderResponse{
-		Agencia:     agencia,
-		TipoDoc:     tipodoc,
-		Documento:   documento,
-		CodCliente:  codcliente,
-		NombreCli:   nombrecli,
-		Emision:     util.FormatDateForResponse(emision),
-		Upickup:     upickup,
-		IdCarrito:   strings.TrimSpace(idcarrito),
-		Almacen:     almacen,
-		RutaCodigo:  rutaCodigo,
-		RutaDescrip: strings.TrimSpace(rutaDescrip),
-		KePedStatus: kePedstatus,
+		Agencia:       agencia,
+		TipoDoc:       tipodoc,
+		Documento:     documento,
+		CodCliente:    codcliente,
+		NombreCli:     nombrecli,
+		Emision:       util.FormatDateForResponse(emision),
+		Upickup:       upickup,
+		IdCarrito:     strings.TrimSpace(idcarrito),
+		PickStartedAt: pickEndedAt,
+		PickEndedAt:   pickEndedAt,
+		Almacen:       almacen,
+		RutaCodigo:    rutaCodigo,
+		RutaDescrip:   strings.TrimSpace(rutaDescrip),
+		KePedStatus:   kePedstatus,
 	}
 }
 
@@ -133,6 +139,8 @@ func mapGetOrdersByUserRowToOrder(row *database.GetOrdersByUserRow) *OrderRespon
 		row.Emision,
 		row.Upickup,
 		row.Idcarrito,
+		"",
+		"",
 		row.Almacen,
 		row.RutaCodigo.String,
 		row.RutaDescrip.String,
@@ -201,6 +209,8 @@ func mapGetOrderByCodeRowToOrder(row *database.GetOrderByCodeRow) *OrderResponse
 		row.Emision,
 		row.Upickup,
 		row.Idcarrito,
+		"",
+		"",
 		row.Almacen,
 		row.RutaCodigo.String,
 		row.RutaDescrip.String,
