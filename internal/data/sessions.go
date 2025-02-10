@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type SessionStorage interface {
+type SessionStore interface {
 	GetSessionById(id uuid.UUID) (session *types.Session, err error)
 	GetSessionByUsername(username string) (session *types.Session, err error)
 	CreateSession(r *types.Session) (err error)
@@ -17,23 +17,23 @@ type SessionStorage interface {
 	DeleteSessionByToken(token string) (err error)
 }
 
-func (s *cacheStore) SessionStorage() SessionStorage {
-	return NewSessionStorage(s.ctx, s.queries)
+func (s *storage) SessionStorage() SessionStore {
+	return NewSessionStorage(s.ctx, s.cacheStore.queries)
 }
 
-type sessionStorage struct {
+type sessionStore struct {
 	ctx context.Context
 	db  *database.Queries
 }
 
-func NewSessionStorage(ctx context.Context, queries *database.Queries) SessionStorage {
-	return &sessionStorage{
+func NewSessionStorage(ctx context.Context, queries *database.Queries) SessionStore {
+	return &sessionStore{
 		ctx: ctx,
 		db:  queries,
 	}
 }
 
-func (s *sessionStorage) GetSessionById(id uuid.UUID) (*types.Session, error) {
+func (s *sessionStore) GetSessionById(id uuid.UUID) (*types.Session, error) {
 	session, err := s.db.GetSessionById(s.ctx, id.String())
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (s *sessionStorage) GetSessionById(id uuid.UUID) (*types.Session, error) {
 	}, nil
 }
 
-func (s *sessionStorage) GetSessionByUsername(username string) (*types.Session, error) {
+func (s *sessionStore) GetSessionByUsername(username string) (*types.Session, error) {
 	session, err := s.db.GetSessionByUsername(s.ctx, username)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (s *sessionStorage) GetSessionByUsername(username string) (*types.Session, 
 	}, nil
 }
 
-func (s *sessionStorage) CreateSession(r *types.Session) error {
+func (s *sessionStore) CreateSession(r *types.Session) error {
 	err := s.db.CreateSession(s.ctx, database.CreateSessionParams{
 		RefreshToken: r.RefreshToken,
 		AccessToken:  r.AccessToken,
@@ -85,7 +85,7 @@ func (s *sessionStorage) CreateSession(r *types.Session) error {
 	return nil
 }
 
-func (s *sessionStorage) UpdateSession(r *types.Session) error {
+func (s *sessionStore) UpdateSession(r *types.Session) error {
 	err := s.db.UpdateSession(s.ctx, database.UpdateSessionParams{
 		RefreshToken: r.RefreshToken,
 		AccessToken:  r.AccessToken,
@@ -98,7 +98,7 @@ func (s *sessionStorage) UpdateSession(r *types.Session) error {
 	return nil
 }
 
-func (s *sessionStorage) DeleteSession(id uuid.UUID) error {
+func (s *sessionStore) DeleteSession(id uuid.UUID) error {
 	err := s.db.DeleteSessionById(s.ctx, id.String())
 	if err != nil {
 		return err
@@ -106,7 +106,7 @@ func (s *sessionStorage) DeleteSession(id uuid.UUID) error {
 	return nil
 }
 
-func (s *sessionStorage) DeleteSessionByToken(token string) error {
+func (s *sessionStore) DeleteSessionByToken(token string) error {
 	err := s.db.DeleteSessionByToken(s.ctx, database.DeleteSessionByTokenParams{
 		RefreshToken: token,
 		AccessToken:  token,

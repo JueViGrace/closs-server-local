@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/JueViGrace/closs-server-local/internal/data"
-	database "github.com/JueViGrace/closs-server-local/internal/database/mysql"
 	"github.com/JueViGrace/closs-server-local/internal/types"
 	"github.com/gofiber/fiber/v2"
 )
@@ -10,14 +12,16 @@ import (
 type OrderHandler interface {
 	GetOrders(c *fiber.Ctx, a *types.AuthData) error
 	GetOrderByCode(c *fiber.Ctx, a *types.AuthData) error
+	UpdateOrderCart(c *fiber.Ctx, a *types.AuthData) error
+	UpdateOrder(c *fiber.Ctx, a *types.AuthData) error
 }
 
 type orderHandler struct {
-	db        *data.Storage
+	db        data.OrderStore
 	validator *types.XValidator
 }
 
-func NewOrderHandler(db *data.Storage, v *types.XValidator) OrderHandler {
+func NewOrderHandler(db data.OrderStore, v *types.XValidator) OrderHandler {
 	return &orderHandler{
 		db:        db,
 		validator: v,
@@ -26,15 +30,8 @@ func NewOrderHandler(db *data.Storage, v *types.XValidator) OrderHandler {
 
 func (h *orderHandler) GetOrders(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
-	orders := make([]types.OrderWithLinesResponse, 0)
 
-	rows, err := h.db.MyStore.Queries.GetOrdersByUser(h.db.MyStore.Ctx, a.Username)
-	if err != nil {
-		res = types.RespondNotFound(nil, err.Error())
-		return c.Status(res.Status).JSON(res)
-	}
-
-	orders, err = types.GroupOrdersByUserRow(rows)
+	orders, err := h.db.GetOrders(a)
 	if err != nil {
 		res = types.RespondNotFound(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
@@ -46,18 +43,78 @@ func (h *orderHandler) GetOrders(c *fiber.Ctx, a *types.AuthData) error {
 
 func (h *orderHandler) GetOrderByCode(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
-	order := new(types.OrderWithLinesResponse)
 
-	rows, err := h.db.MyStore.Queries.GetOrderByCode(h.db.MyStore.Ctx, database.GetOrderByCodeParams{
-		Upickup:   a.Username,
-		Documento: c.Params("code"),
-	})
+	order, err := h.db.GetOrderByCode(c.Params("code"), a)
 	if err != nil {
 		res = types.RespondNotFound(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
 
-	order, err = types.GroupOrderByCodeRow(rows)
+	res = types.RespondOk(order, "Success")
+	return c.Status(res.Status).JSON(res)
+}
+
+func (h *orderHandler) UpdateOrderCart(c *fiber.Ctx, a *types.AuthData) error {
+	res := new(types.APIResponse)
+	r := new(types.UpdateOrderCartRequest)
+
+	if err := c.BodyParser(r); err != nil {
+		res = types.RespondBadRequest(nil, err.Error())
+		return c.Status(res.Status).JSON(res)
+	}
+
+	if errs := h.validator.Validate(r); len(errs) > 0 {
+		errMsgs := make([]string, 0)
+
+		for _, err := range errs {
+			errMsgs = append(errMsgs, fmt.Sprintf(
+				"[%s]: '%v' | Needs to implement '%s'",
+				err.FailedField,
+				err.Value,
+				err.Tag,
+			))
+		}
+
+		res = types.RespondBadRequest(nil, strings.Join(errMsgs, " and "))
+		return c.Status(res.Status).JSON(res)
+	}
+
+	order, err := h.db.UpdateOrderCart(r, a)
+	if err != nil {
+		res = types.RespondBadRequest(nil, err.Error())
+		return c.Status(res.Status).JSON(res)
+	}
+
+	res = types.RespondOk(order, "Success")
+	return c.Status(res.Status).JSON(res)
+}
+
+func (h *orderHandler) UpdateOrder(c *fiber.Ctx, a *types.AuthData) error {
+	res := new(types.APIResponse)
+	r := new(types.UpdateOrderRequest)
+
+	if err := c.BodyParser(r); err != nil {
+		res = types.RespondBadRequest(nil, err.Error())
+		return c.Status(res.Status).JSON(res)
+	}
+
+	if errs := h.validator.Validate(r); len(errs) > 0 {
+		errMsgs := make([]string, 0)
+
+		for _, err := range errs {
+			errMsgs = append(errMsgs, fmt.Sprintf(
+				"[%s]: '%v' | Needs to implement '%s'",
+				err.FailedField,
+				err.Value,
+				err.Tag,
+			))
+		}
+
+		res = types.RespondBadRequest(nil, strings.Join(errMsgs, " and "))
+		return c.Status(res.Status).JSON(res)
+	}
+
+	order, err := h.db.UpdateOrder(r, a)
 	if err != nil {
 		res = types.RespondNotFound(nil, err.Error())
 		return c.Status(res.Status).JSON(res)

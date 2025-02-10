@@ -97,3 +97,11 @@ where
     and operti.documento = ?
 ;
 
+-- name: UpdateOrderCart :exec
+update operti set
+    idcarrito = ?
+where 
+    tipodoc = 'PED'
+    and documento = ? 
+    and upickup = ?;
+

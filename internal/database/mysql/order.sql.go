@@ -268,3 +268,23 @@ func (q *Queries) GetOrdersByUser(ctx context.Context, upickup string) ([]GetOrd
 	}
 	return items, nil
 }
+
+const updateOrderCart = `-- name: UpdateOrderCart :exec
+update operti set
+    idcarrito = ?
+where 
+    tipodoc = 'PED'
+    and documento = ? 
+    and upickup = ?
+`
+
+type UpdateOrderCartParams struct {
+	Idcarrito string
+	Documento string
+	Upickup   string
+}
+
+func (q *Queries) UpdateOrderCart(ctx context.Context, arg UpdateOrderCartParams) error {
+	_, err := q.db.ExecContext(ctx, updateOrderCart, arg.Idcarrito, arg.Documento, arg.Upickup)
+	return err
+}

@@ -14,12 +14,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type CacheStore interface {
-	SessionStorage() SessionStorage
-	health() map[string]string
-	close() error
-}
-
 var (
 	dbUrl         string = os.Getenv("DB_URL")
 	cacheInstance *cacheStore
@@ -28,11 +22,10 @@ var (
 
 type cacheStore struct {
 	db      *sql.DB
-	ctx     context.Context
 	queries *database.Queries
 }
 
-func newCacheStorage() CacheStore {
+func newCacheStorage() *cacheStore {
 	if cacheInstance != nil {
 		return cacheInstance
 	}
@@ -50,7 +43,6 @@ func newCacheStorage() CacheStore {
 
 	return &cacheStore{
 		db:      conn,
-		ctx:     ctx,
 		queries: cacheQueries,
 	}
 }

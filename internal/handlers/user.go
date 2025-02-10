@@ -12,11 +12,11 @@ type UserHandler interface {
 }
 
 type userHandler struct {
-	db        *data.Storage
+	db        data.UserStore
 	validator *types.XValidator
 }
 
-func NewUserHandler(db *data.Storage, v *types.XValidator) UserHandler {
+func NewUserHandler(db data.UserStore, v *types.XValidator) UserHandler {
 	return &userHandler{
 		db:        db,
 		validator: v,
@@ -26,13 +26,11 @@ func NewUserHandler(db *data.Storage, v *types.XValidator) UserHandler {
 func (h *userHandler) GetUserById(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
 
-	dbUser, err := h.db.MyStore.Queries.GetUserByUsername(h.db.MyStore.Ctx, a.Username)
+	user, err := h.db.GetUser(a)
 	if err != nil {
 		res = types.RespondNotFound(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
-
-	user := types.DbUserToUser(a.UserId, &dbUser)
 
 	res = types.RespondOk(user, "Success")
 	return c.Status(res.Status).JSON(res)
@@ -41,15 +39,12 @@ func (h *userHandler) GetUserById(c *fiber.Ctx, a *types.AuthData) error {
 func (h *userHandler) GetUserInfoById(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
 
-	dbUser, err := h.db.MyStore.Queries.GetUserByUsername(h.db.MyStore.Ctx, a.Username)
+	info, err := h.db.GetUserInfo(a)
 	if err != nil {
 		res = types.RespondNotFound(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
 
-	res = types.RespondOk(types.PickerInfoResponse{
-		Name:    dbUser.Nombre,
-		Almacen: dbUser.Almacen,
-	}, "Success")
+	res = types.RespondOk(info, "Success")
 	return c.Status(res.Status).JSON(res)
 }

@@ -21,7 +21,6 @@ func (a *api) ApiRoutes() {
 	}))
 
 	a.AuthRoutes(api)
-	a.ConfigRoutes(api)
 	a.OrderRoutes(api)
 	a.ProductRoutes(api)
 	a.UserRoutes(api)

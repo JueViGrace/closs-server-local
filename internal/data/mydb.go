@@ -12,9 +12,8 @@ import (
 	database "github.com/JueViGrace/closs-server-local/internal/database/mysql"
 )
 
-type MySQLStore struct {
+type mySQLStore struct {
 	db      *sql.DB
-	Ctx     context.Context
 	Queries *database.Queries
 }
 
@@ -24,11 +23,11 @@ var (
 	username   = os.Getenv("DB_USERNAME")
 	port       = os.Getenv("DB_PORT")
 	host       = os.Getenv("DB_HOST")
-	myInstance *MySQLStore
+	myInstance *mySQLStore
 	myQueries  *database.Queries
 )
 
-func newMySQLStorage() *MySQLStore {
+func newMySQLStorage() *mySQLStore {
 	if myInstance != nil {
 		return myInstance
 	}
@@ -45,9 +44,8 @@ func newMySQLStorage() *MySQLStore {
 
 	myQueries = database.New(conn)
 
-	myInstance = &MySQLStore{
+	myInstance = &mySQLStore{
 		db:      conn,
-		Ctx:     ctx,
 		Queries: myQueries,
 	}
 
@@ -56,7 +54,7 @@ func newMySQLStorage() *MySQLStore {
 
 // Health checks the health of the database connection by pinging the database.
 // It returns a map with keys indicating various health statistics.
-func (s *MySQLStore) health() map[string]string {
+func (s *mySQLStore) health() map[string]string {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
@@ -67,7 +65,7 @@ func (s *MySQLStore) health() map[string]string {
 	if err != nil {
 		stats["status"] = "down"
 		stats["error"] = fmt.Sprintf("db down: %v", err)
-		log.Fatalf(fmt.Sprintf("db down: %v", err)) // Log the error and terminate the program
+		log.Fatalf("%s", fmt.Sprintf("db down: %v", err)) // Log the error and terminate the program
 		return stats
 	}
 
@@ -109,7 +107,7 @@ func (s *MySQLStore) health() map[string]string {
 // It logs a message indicating the disconnection from the specific database.
 // If the connection is successfully closed, it returns nil.
 // If an error occurs while closing the connection, it returns the error.
-func (s *MySQLStore) close() error {
+func (s *mySQLStore) close() error {
 	log.Printf("Disconnected from database: %s", dbName)
 	return s.db.Close()
 }

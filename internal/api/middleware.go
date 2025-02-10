@@ -33,25 +33,25 @@ func (a *api) authenticatedHandler(handler types.AuthDataHandler) fiber.Handler 
 	}
 }
 
-func getUserDataForReq(c *fiber.Ctx, db *data.Storage) (*types.AuthData, error) {
+func getUserDataForReq(c *fiber.Ctx, db data.Storage) (*types.AuthData, error) {
 	jwt, err := extractJWTFromHeader(c, func(s string) {
-		db.CacheStore.SessionStorage().DeleteSessionByToken(s)
+		db.SessionStorage().DeleteSessionByToken(s)
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	session, err := db.CacheStore.SessionStorage().GetSessionById(jwt.Claims.UserId)
+	session, err := db.SessionStorage().GetSessionById(jwt.Claims.UserId)
 	if err != nil {
 		return nil, err
 	}
 
-	dbUser, err := db.MyStore.Queries.GetUserByUsername(db.MyStore.Ctx, session.Username)
+	dbUser, err := db.UserStore().GetDbUserByUsername(session.Username)
 	if err != nil {
 		return nil, err
 	}
 
-	// todo: fill code
+	// TODO: fill code
 	return &types.AuthData{
 		UserId:   session.UserId,
 		Username: dbUser.Username,

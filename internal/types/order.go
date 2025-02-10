@@ -42,6 +42,31 @@ type OrderLineResponse struct {
 	Cantidad  int             `json:"cantidad"`
 }
 
+type UpdateOrderCartRequest struct {
+	Documento string `json:"documento"`
+	Upickup   string `json:"upickup"`
+	IdCarrito string `json:"idcarrito"`
+}
+
+type UpdateOrderRequest struct {
+	Agencia   string                   `json:"agencia"`
+	TipoDoc   string                   `json:"tipodoc"`
+	Documento string                   `json:"documento"`
+	Upickup   string                   `json:"upickup"`
+	IdCarrito string                   `json:"idcarrito"`
+	Almacen   string                   `json:"almacen"`
+	Lines     []UpdateOrderLineRequest `json:"lines"`
+}
+
+type UpdateOrderLineRequest struct {
+	Agencia   string `json:"agencia"`
+	TipoDoc   string `json:"tipodoc"`
+	Documento string `json:"documento"`
+	Almacen   string `json:"almacen"`
+	Codigo    string `json:"codigo"`
+	Cantidad  int    `json:"cantidad"`
+}
+
 func mapToOrder(
 	agencia string,
 	tipodoc string,

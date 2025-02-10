@@ -21,7 +21,7 @@ type Api interface {
 
 type api struct {
 	*fiber.App
-	db        *data.Storage
+	db        data.Storage
 	validator *types.XValidator
 }
 

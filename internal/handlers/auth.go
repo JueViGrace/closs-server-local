@@ -6,9 +6,7 @@ import (
 
 	"github.com/JueViGrace/closs-server-local/internal/data"
 	"github.com/JueViGrace/closs-server-local/internal/types"
-	"github.com/JueViGrace/closs-server-local/internal/util"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 )
 
 type AuthHandler interface {
@@ -18,11 +16,11 @@ type AuthHandler interface {
 }
 
 type authHandler struct {
-	db        *data.Storage
+	db        data.AuthStore
 	validator *types.XValidator
 }
 
-func NewAuthHandler(db *data.Storage, v *types.XValidator) AuthHandler {
+func NewAuthHandler(db data.AuthStore, v *types.XValidator) AuthHandler {
 	return &authHandler{
 		db:        db,
 		validator: v,
@@ -54,56 +52,17 @@ func (h *authHandler) SignIn(c *fiber.Ctx) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	dbSession, err := h.db.CacheStore.SessionStorage().GetSessionByUsername(r.Username)
-	if err == nil {
-		err = h.db.CacheStore.SessionStorage().DeleteSession(dbSession.UserId)
-		if err != nil {
-			res = types.RespondBadRequest(nil, err.Error())
-			return c.Status(res.Status).JSON(res)
-		}
-	}
-
-	dbUser, err := h.db.MyStore.Queries.GetUserByUsername(h.db.MyStore.Ctx, r.Username)
+	data, err := h.db.SignIn(r)
 	if err != nil {
-		res = types.RespondNotFound(nil, err.Error())
+		res = types.RespondBadRequest(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
 
-	id, err := uuid.NewV7()
-	if err != nil {
-		res = types.RespondNotFound(nil, err.Error())
-		return c.Status(res.Status).JSON(res)
-	}
-
-	user := types.DbUserToUser(id, &dbUser)
-
-	if !util.ValidatePassword(r.Password, user.Password) {
-		res = types.RespondBadRequest(nil, "invalid credentials")
-		return c.Status(res.Status).JSON(res)
-	}
-
-	token, err := createTokens(user)
-	if err != nil {
-		res = types.RespondNotFound(nil, err.Error())
-		return c.Status(res.Status).JSON(res)
-	}
-
-	err = h.db.CacheStore.SessionStorage().CreateSession(&types.Session{
-		UserId:       user.ID,
-		Username:     user.Username,
-		RefreshToken: token.RefreshToken,
-		AccessToken:  token.AccessToken,
-	})
-	if err != nil {
-		res = types.RespondNotFound(nil, err.Error())
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondOk(token, "Success")
+	res = types.RespondOk(data, "Success")
 	return c.Status(res.Status).JSON(res)
 }
 
-// todo: refresh logic may be done another way
+// TODO: refresh logic may be done another way
 func (h *authHandler) Refresh(c *fiber.Ctx, a *types.AuthData) error {
 	res := new(types.APIResponse)
 	r := new(types.RefreshRequest)
@@ -129,53 +88,17 @@ func (h *authHandler) Refresh(c *fiber.Ctx, a *types.AuthData) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
-	dbUser, err := h.db.MyStore.Queries.GetUserByUsername(h.db.MyStore.Ctx, a.Username)
+	data, err := h.db.Refresh(r, a)
 	if err != nil {
 		res = types.RespondBadRequest(nil, err.Error())
 		return c.Status(res.Status).JSON(res)
 	}
 
-	user := types.DbUserToUser(a.UserId, &dbUser)
-
-	newTokens, err := createTokens(user)
-	if err != nil {
-		res = types.RespondBadRequest(nil, err.Error())
-		return c.Status(res.Status).JSON(res)
-	}
-
-	err = h.db.CacheStore.SessionStorage().UpdateSession(&types.Session{
-		UserId:       user.ID,
-		Username:     dbUser.Username,
-		RefreshToken: newTokens.RefreshToken,
-		AccessToken:  newTokens.AccessToken,
-	})
-	if err != nil {
-		res = types.RespondBadRequest(nil, err.Error())
-		return c.Status(res.Status).JSON(res)
-	}
-
-	res = types.RespondOk(newTokens, "Success")
+	res = types.RespondOk(data, "Success")
 	return c.Status(res.Status).JSON(res)
 }
 
 func (h *authHandler) RecoverPassword(c *fiber.Ctx) error {
 	res := types.RespondOk("RecoverPassword handler", "Success")
 	return c.Status(res.Status).JSON(res)
-}
-
-func createTokens(user *types.UserResponse) (*types.AuthResponse, error) {
-	accessToken, err := util.CreateAccessToken(user.ID.String(), user.Username, user.Code)
-	if err != nil {
-		return nil, err
-	}
-
-	refreshToken, err := util.CreateRefreshToken(user.ID.String(), user.Username, user.Code)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.AuthResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}, nil
 }
