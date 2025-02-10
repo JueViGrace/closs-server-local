@@ -11,4 +11,6 @@ func (a *api) OrderRoutes(api fiber.Router) {
 
 	group.Get("/", a.authenticatedHandler(handler.GetOrders))
 	group.Get("/:code", a.authenticatedHandler(handler.GetOrderByCode))
+	group.Patch("/", a.authenticatedHandler(handler.UpdateOrderCart))
+	group.Put("/", a.authenticatedHandler(handler.UpdateOrder))
 }
