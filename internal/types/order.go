@@ -92,7 +92,7 @@ func mapToOrder(
 		Emision:       util.FormatDateForResponse(emision),
 		Upickup:       upickup,
 		IdCarrito:     strings.TrimSpace(idcarrito),
-		PickStartedAt: pickEndedAt,
+		PickStartedAt: pickStartedAt,
 		PickEndedAt:   pickEndedAt,
 		Almacen:       almacen,
 		RutaCodigo:    rutaCodigo,
@@ -183,7 +183,7 @@ func mapGetOrdersByUserRowToOrderLine(row *database.GetOrdersByUserRow) *OrderLi
 		Referencia: strings.TrimSpace(row.Referencia.String),
 		Marca:      strings.TrimSpace(row.Marca.String),
 		Unidad:     strings.TrimSpace(row.Unidad.String),
-		Image:      fmt.Sprintf("%s/api/products/%s/image", os.Getenv("BASE_URL"), row.Codigo.String),
+		Image:      fmt.Sprintf("%s/images/%s.jpg", os.Getenv("BASE_URL"), row.Codigo.String),
 		CreatedAt:  util.FormatDateForResponse(row.Fechacrea.Time),
 	}
 
@@ -253,7 +253,7 @@ func mapGetOrderByCodeRowToOrderLine(row *database.GetOrderByCodeRow) *OrderLine
 		Referencia: strings.TrimSpace(row.Referencia.String),
 		Marca:      strings.TrimSpace(row.Marca.String),
 		Unidad:     strings.TrimSpace(row.Unidad.String),
-		Image:      fmt.Sprintf("%s/api/products/%s/image", os.Getenv("BASE_URL"), row.Codigo.String),
+		Image:      fmt.Sprintf("%s/images/%s.jpg", os.Getenv("BASE_URL"), row.Codigo.String),
 		CreatedAt:  util.FormatDateForResponse(row.Fechacrea.Time),
 	}
 

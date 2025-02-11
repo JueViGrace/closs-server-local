@@ -11,5 +11,4 @@ func (a *api) ProductRoutes(api fiber.Router) {
 
 	group.Get("/", handler.GetProducts)
 	group.Get("/:code", handler.GetProductByCode)
-	group.Get("/:code/image", handler.GetProductImageByCode)
 }
