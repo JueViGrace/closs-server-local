@@ -10,6 +10,7 @@ import (
 type OrderStore interface {
 	GetOrders(a *types.AuthData) (orders []types.OrderWithLinesResponse, err error)
 	GetOrderByCode(code string, a *types.AuthData) (order *types.OrderWithLinesResponse, err error)
+	GetOrderByCart(cart string) (int64, error)
 	UpdateOrderCart(r *types.UpdateOrderCartRequest, a *types.AuthData) (order *types.OrderWithLinesResponse, err error)
 	UpdateOrder(r *types.UpdateOrderRequest, a *types.AuthData) (order *types.OrderWithLinesResponse, err error)
 }
@@ -61,16 +62,29 @@ func (s *orderStore) GetOrderByCode(code string, a *types.AuthData) (*types.Orde
 	if err != nil {
 		return nil, err
 	}
+
 	return order, nil
 }
 
+func (s *orderStore) GetOrderByCart(cart string) (int64, error) {
+	return s.db.GetOrderWithCart(s.ctx, cart)
+}
+
 func (s *orderStore) UpdateOrderCart(r *types.UpdateOrderCartRequest, a *types.AuthData) (*types.OrderWithLinesResponse, error) {
-	// TODO: do doc update
+	err := s.db.UpdateOrderCart(s.ctx, database.UpdateOrderCartParams{
+		Idcarrito: r.IdCarrito,
+		Documento: r.Documento,
+		Upickup:   a.Username,
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return s.GetOrderByCode(r.Documento, a)
 }
 
 func (s *orderStore) UpdateOrder(r *types.UpdateOrderRequest, a *types.AuthData) (*types.OrderWithLinesResponse, error) {
 	// TODO: do doc update
+
 	return s.GetOrderByCode(r.Documento, a)
 }

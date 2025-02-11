@@ -55,11 +55,7 @@ left join
     on operti.sector = kerutazonas.codigo
     and operti.subcodigo = kerutazonas.subcodigo
 left join keruta on kerutazonas.ruta_codigo = keruta.ruta_codigo
-where
-    operti.tipodoc = 'PED'
-    and operti.upickup = ?
-    and operti.idcarrito = ''
-    and operti.documento = ?
+where operti.tipodoc = 'PED' and operti.upickup = ? and operti.documento = ?
 `
 
 type GetOrderByCodeParams struct {
@@ -142,6 +138,19 @@ func (q *Queries) GetOrderByCode(ctx context.Context, arg GetOrderByCodeParams) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const getOrderWithCart = `-- name: GetOrderWithCart :one
+select count(*)
+from operti
+where idcarrito = ?
+`
+
+func (q *Queries) GetOrderWithCart(ctx context.Context, idcarrito string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getOrderWithCart, idcarrito)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }
 
 const getOrdersByUser = `-- name: GetOrdersByUser :many

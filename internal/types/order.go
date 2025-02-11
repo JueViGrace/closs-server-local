@@ -44,7 +44,6 @@ type OrderLineResponse struct {
 
 type UpdateOrderCartRequest struct {
 	Documento string `json:"documento"`
-	Upickup   string `json:"upickup"`
 	IdCarrito string `json:"idcarrito"`
 }
 
@@ -53,7 +52,6 @@ type UpdateOrderRequest struct {
 	TipoDoc   string                   `json:"tipodoc"`
 	Documento string                   `json:"documento"`
 	Upickup   string                   `json:"upickup"`
-	IdCarrito string                   `json:"idcarrito"`
 	Almacen   string                   `json:"almacen"`
 	Lines     []UpdateOrderLineRequest `json:"lines"`
 }

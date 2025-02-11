@@ -90,11 +90,13 @@ left join
     on operti.sector = kerutazonas.codigo
     and operti.subcodigo = kerutazonas.subcodigo
 left join keruta on kerutazonas.ruta_codigo = keruta.ruta_codigo
-where
-    operti.tipodoc = 'PED'
-    and operti.upickup = ?
-    and operti.idcarrito = ''
-    and operti.documento = ?
+where operti.tipodoc = 'PED' and operti.upickup = ? and operti.documento = ?
+;
+
+-- name: GetOrderWithCart :one
+select count(*)
+from operti
+where idcarrito = ?
 ;
 
 -- name: UpdateOrderCart :exec

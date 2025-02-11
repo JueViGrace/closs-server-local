@@ -39,6 +39,10 @@ func RespondNoContent(data any, message string) *APIResponse {
 	return NewAPIResponse(http.StatusNoContent, http.StatusText(http.StatusNoContent), data, message)
 }
 
+func RespondConflict(data any, message string) *APIResponse {
+	return NewAPIResponse(http.StatusConflict, http.StatusText(http.StatusConflict), data, message)
+}
+
 func RespondBadRequest(data any, message string) *APIResponse {
 	return NewAPIResponse(http.StatusBadRequest, http.StatusText(http.StatusBadRequest), data, message)
 }

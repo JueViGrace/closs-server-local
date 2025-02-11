@@ -79,6 +79,20 @@ func (h *orderHandler) UpdateOrderCart(c *fiber.Ctx, a *types.AuthData) error {
 		return c.Status(res.Status).JSON(res)
 	}
 
+	if r.IdCarrito != "" {
+		count, err := h.db.GetOrderByCart(r.IdCarrito)
+		if err != nil {
+			res = types.RespondBadRequest(nil, err.Error())
+			return c.Status(res.Status).JSON(res)
+		}
+
+		if count > 0 {
+			res = types.RespondConflict(nil, fmt.Sprintf("cart %s is already in use", r.IdCarrito))
+			return c.Status(res.Status).JSON(res)
+
+		}
+	}
+
 	order, err := h.db.UpdateOrderCart(r, a)
 	if err != nil {
 		res = types.RespondBadRequest(nil, err.Error())
