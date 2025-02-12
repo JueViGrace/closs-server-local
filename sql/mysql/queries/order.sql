@@ -42,7 +42,7 @@ left join
     on operti.sector = kerutazonas.codigo
     and operti.subcodigo = kerutazonas.subcodigo
 left join keruta on kerutazonas.ruta_codigo = keruta.ruta_codigo
-where operti.tipodoc = 'PED' and operti.upickup = ? and idcarrito = ''
+where operti.tipodoc = 'PED' and operti.upickup = ? and operti.ke_pedstatus = "14"
 order by operti.emision asc, operti.documento asc, operti.almacen asc
 ;
 
@@ -105,5 +105,6 @@ update operti set
 where 
     tipodoc = 'PED'
     and documento = ? 
-    and upickup = ?;
+    and upickup = ?
+;
 
