@@ -24,7 +24,7 @@ func StringToFloat(s string, bitSize int) float64 {
 
 func FormatDateForResponse(d time.Time) string {
 	return fmt.Sprintf(
-		"%d-%02d-%02d %02d:%02d:%02d",
+		"%d-%02d-%02dT%02d:%02d:%02d",
 		d.Year(), d.Month(), d.Day(),
 		d.Hour(), d.Minute(), d.Second(),
 	)
